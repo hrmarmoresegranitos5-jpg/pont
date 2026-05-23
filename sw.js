@@ -3,7 +3,7 @@
    Estratégia: Cache First para assets, Network First para dados
 ══════════════════════════════════════════════════════════ */
 
-const CACHE_NAME = 'ponto-v2';
+const CACHE_NAME = 'ponto-v4';
 const ASSETS = [
   './',
   './index.html',
