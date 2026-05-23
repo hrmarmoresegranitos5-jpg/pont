@@ -3,1493 +3,843 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sistema de Ponto</title>
-  <meta name="description" content="Registro de ponto eletrônico" />
+  <title>HR Mármores — Meu Saldo</title>
   <link rel="manifest" href="manifest.json" />
-  <meta name="theme-color" content="#0f1117" />
+  <meta name="theme-color" content="#09090b" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-
   <style>
-    /* ── RESET & BASE ─────────────────────────────────── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg:       #0f1117;
-      --surface:  #181c27;
-      --card:     #1e2333;
-      --border:   #2a3047;
-      --accent:   #4f8ef7;
-      --accent2:  #34d399;
-      --warn:     #f87171;
-      --text:     #e8ecf5;
-      --muted:    #7a82a0;
-      --radius:   14px;
-      --shadow:   0 4px 32px rgba(0,0,0,.45);
+      --bg:      #09090b;
+      --bg2:     #111113;
+      --bg3:     #18181b;
+      --bg4:     #222226;
+      --border:  #2a2a30;
+      --border2: #35353d;
+      --gold:    #c8a055;
+      --gold2:   #e8b96a;
+      --cream:   #eae6dc;
+      --mid:     #7a7a85;
+      --green:   #4caf7d;
+      --green2:  #6dd49a;
+      --red:     #d05060;
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bot: env(safe-area-inset-bottom, 0px);
     }
 
-    html { font-size: 16px; }
-    body {
-      font-family: 'Segoe UI', system-ui, sans-serif;
+    html, body {
+      height: 100%;
       background: var(--bg);
-      color: var(--text);
+      color: var(--cream);
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── TELA DE LOGIN ── */
+    #tela-login {
       min-height: 100dvh;
       display: flex;
       flex-direction: column;
       align-items: center;
+      justify-content: center;
+      padding: 24px;
+      gap: 32px;
+    }
+    #tela-login.oculta { display: none; }
+
+    .logo-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+    .logo-icone {
+      width: 72px; height: 72px;
+      background: var(--gold);
+      border-radius: 20px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 32px;
+    }
+    .logo-nome {
+      font-size: 1.4rem;
+      font-weight: 800;
+      letter-spacing: .02em;
+    }
+    .logo-nome span { color: var(--gold); }
+    .logo-sub {
+      font-size: .82rem;
+      color: var(--mid);
     }
 
-    /* ── LAYOUT ───────────────────────────────────────── */
-    .app-wrap {
+    .login-box {
       width: 100%;
-      max-width: 480px;
-      padding: 0 16px 80px;
+      max-width: 360px;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 28px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .login-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--cream);
+    }
+
+    .campo-label {
+      font-size: .72rem;
+      font-weight: 600;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--mid);
+      margin-bottom: 6px;
+    }
+    .campo-input {
+      width: 100%;
+      background: var(--bg4);
+      border: 1px solid var(--border2);
+      border-radius: 12px;
+      color: var(--cream);
+      font-size: 1rem;
+      padding: 14px 16px;
+      outline: none;
+      transition: border-color .2s;
+      -webkit-appearance: none;
+    }
+    .campo-input:focus { border-color: var(--gold); }
+    .campo-input::placeholder { color: var(--mid); }
+
+    .erro {
+      font-size: .82rem;
+      color: var(--red);
+      text-align: center;
+      min-height: 18px;
+    }
+
+    .btn-entrar {
+      width: 100%;
+      padding: 16px;
+      border-radius: 13px;
+      border: none;
+      background: var(--gold);
+      color: #09090b;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity .15s, transform .1s;
+      letter-spacing: .02em;
+    }
+    .btn-entrar:active { transform: scale(.97); }
+    .btn-entrar:hover { opacity: .9; }
+    .btn-entrar:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+
+    .link-config {
+      font-size: .78rem;
+      color: var(--mid);
+      text-align: center;
+      cursor: pointer;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    /* ── TELA PRINCIPAL ── */
+    #tela-principal {
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+    }
+    #tela-principal.oculta { display: none; }
+
+    .header {
+      padding: calc(18px + var(--safe-top)) 20px 16px;
+      background: var(--bg2);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .header-avatar {
+      width: 42px; height: 42px;
+      border-radius: 50%;
+      background: var(--gold);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+      font-weight: 800;
+      color: #09090b;
+      flex-shrink: 0;
+    }
+    .header-info { flex: 1; }
+    .header-nome {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--cream);
+    }
+    .header-sub {
+      font-size: .75rem;
+      color: var(--mid);
+      margin-top: 2px;
+    }
+    .header-sair {
+      font-size: .75rem;
+      color: var(--mid);
+      cursor: pointer;
+      padding: 8px;
+      border-radius: 8px;
+      border: 1px solid var(--border2);
+      background: var(--bg4);
+      white-space: nowrap;
+    }
+
+    .conteudo {
+      flex: 1;
+      padding: 20px 16px calc(32px + var(--safe-bot));
       display: flex;
       flex-direction: column;
       gap: 16px;
+      max-width: 480px;
+      width: 100%;
+      margin: 0 auto;
     }
 
-    /* ── HEADER ───────────────────────────────────────── */
-    header {
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      background: var(--bg);
-      border-bottom: 1px solid var(--border);
-      padding: 14px 20px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    header h1 {
-      font-size: 1.1rem;
-      font-weight: 700;
-      letter-spacing: .02em;
-    }
-    header h1 span { color: var(--accent); }
-    .header-user {
-      font-size: .8rem;
-      color: var(--muted);
-      text-align: right;
-      line-height: 1.3;
-    }
-    .header-user strong { color: var(--text); display: block; }
-
-    /* ── CARDS ────────────────────────────────────────── */
-    .card {
-      background: var(--card);
+    /* ── CARD PRINCIPAL ── */
+    .card-saldo {
+      background: var(--bg3);
       border: 1px solid var(--border);
-      border-radius: var(--radius);
+      border-radius: 20px;
+      overflow: hidden;
+    }
+    .card-barra {
+      height: 4px;
+      background: var(--gold);
+    }
+    .card-barra.verde { background: var(--green); }
+    .card-inner {
       padding: 20px;
     }
-    .card-title {
-      font-size: .7rem;
+    .card-titulo {
+      font-size: .68rem;
       font-weight: 700;
+      letter-spacing: .12em;
       text-transform: uppercase;
-      letter-spacing: .1em;
-      color: var(--muted);
-      margin-bottom: 12px;
+      color: var(--mid);
+      margin-bottom: 16px;
     }
 
-    /* ── CLOCK ────────────────────────────────────────── */
-    .clock-block {
+    /* bloco grande de valor */
+    .valor-principal {
       text-align: center;
-      padding: 8px 0 4px;
+      padding: 12px 0 8px;
     }
-    #clock {
-      font-size: 3.4rem;
+    .valor-label {
+      font-size: .72rem;
+      color: var(--mid);
+      margin-bottom: 6px;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+    .valor-num {
+      font-size: 2.8rem;
       font-weight: 800;
-      font-variant-numeric: tabular-nums;
+      color: var(--green2);
       letter-spacing: -.02em;
       line-height: 1;
     }
-    #clock-date {
-      font-size: .9rem;
-      color: var(--muted);
-      margin-top: 4px;
-      text-transform: capitalize;
-    }
+    .valor-num.negativo { color: var(--red); }
+    .valor-num.neutro { color: var(--mid); }
 
-    /* ── STATUS BADGES ────────────────────────────────── */
-    .status-row {
-      display: flex;
+    /* grade de métricas */
+    .metricas {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
       gap: 10px;
-      margin-top: 14px;
+      margin-top: 16px;
     }
-    .badge {
-      flex: 1;
-      border-radius: 10px;
-      padding: 10px 12px;
-      font-size: .78rem;
-      font-weight: 600;
-      background: var(--surface);
+    .metrica {
+      background: var(--bg4);
       border: 1px solid var(--border);
-      text-align: center;
-      line-height: 1.4;
+      border-radius: 14px;
+      padding: 14px 12px;
     }
-    .badge span { display: block; font-size: .65rem; color: var(--muted); font-weight: 400; }
-    .badge.active { border-color: var(--accent2); color: var(--accent2); }
-    .badge.warn   { border-color: var(--warn);   color: var(--warn); }
-
-    /* ── BIG BUTTON ───────────────────────────────────── */
-    .btn-ponto {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      width: 100%;
-      padding: 22px;
-      border-radius: var(--radius);
-      border: none;
-      font-size: 1.05rem;
-      font-weight: 700;
-      cursor: pointer;
-      transition: transform .12s, filter .12s;
-      background: linear-gradient(135deg, var(--accent), #6366f1);
-      color: #fff;
-      box-shadow: 0 4px 20px rgba(79,142,247,.3);
-    }
-    .btn-ponto.saida {
-      background: linear-gradient(135deg, #f87171, #ef4444);
-      box-shadow: 0 4px 20px rgba(248,113,113,.3);
-    }
-    .btn-ponto:hover  { filter: brightness(1.1); }
-    .btn-ponto:active { transform: scale(.97); }
-    .btn-ponto:disabled {
-      opacity: .4;
-      cursor: not-allowed;
-      transform: none;
-      filter: none;
-    }
-    .btn-ponto small { font-size: .72rem; opacity: .8; font-weight: 400; }
-
-    /* ── FORM ─────────────────────────────────────────── */
-    .form-group { display: flex; flex-direction: column; gap: 6px; }
-    .form-group label { font-size: .78rem; color: var(--muted); }
-    .form-group input, .form-group select {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      color: var(--text);
-      padding: 12px 14px;
-      font-size: .95rem;
-      outline: none;
-      transition: border-color .2s;
-    }
-    .form-group input:focus, .form-group select:focus {
-      border-color: var(--accent);
-    }
-    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-
-    .btn {
-      border-radius: 10px;
-      border: none;
-      padding: 12px 20px;
-      font-size: .9rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: opacity .15s;
-    }
-    .btn:hover { opacity: .85; }
-    .btn-primary { background: var(--accent); color: #fff; }
-    .btn-ghost   { background: var(--surface); color: var(--text); border: 1px solid var(--border); }
-    .btn-danger  { background: var(--warn); color: #fff; }
-    .btn-full    { width: 100%; }
-    .btn-sm      { padding: 8px 14px; font-size: .8rem; }
-
-    /* ── REGISTROS ────────────────────────────────────── */
-    .registros-list { display: flex; flex-direction: column; gap: 8px; }
-    .registro-item {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 10px 14px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      font-size: .85rem;
-    }
-    .registro-item .tipo {
-      font-weight: 700;
-      font-size: .7rem;
-      text-transform: uppercase;
-      letter-spacing: .08em;
-      padding: 2px 8px;
-      border-radius: 6px;
-    }
-    .tipo.entrada { background: rgba(52,211,153,.15); color: var(--accent2); }
-    .tipo.saida   { background: rgba(248,113,113,.15); color: var(--warn); }
-    .tipo.almoco-inicio { background: rgba(251,191,36,.15); color: #fbbf24; }
-    .tipo.almoco-fim    { background: rgba(251,191,36,.15); color: #fbbf24; }
-    .registro-hora { font-variant-numeric: tabular-nums; font-weight: 600; }
-    .registro-obs  { font-size: .72rem; color: var(--muted); }
-
-    /* ── HISTÓRICO ────────────────────────────────────── */
-    .historico-day {
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      overflow: hidden;
-      margin-bottom: 8px;
-    }
-    .historico-day-header {
-      padding: 10px 16px;
-      background: var(--surface);
-      font-size: .82rem;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      cursor: pointer;
-      user-select: none;
-    }
-    .historico-day-header .total-horas { font-size: .75rem; color: var(--accent2); }
-    .historico-day-body { padding: 6px 12px; display: none; }
-    .historico-day-body.open { display: block; }
-
-    /* ── CONFIG ───────────────────────────────────────── */
-    .config-item {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      padding-bottom: 16px;
-      border-bottom: 1px solid var(--border);
-      margin-bottom: 16px;
-    }
-    .config-item:last-child { border-bottom: none; padding-bottom: 0; margin-bottom: 0; }
-
-    /* ── TOAST ────────────────────────────────────────── */
-    #toast {
-      position: fixed;
-      bottom: 72px;
-      left: 50%;
-      transform: translateX(-50%) translateY(20px);
-      background: var(--card);
-      color: var(--text);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 10px 20px;
-      font-size: .88rem;
-      font-weight: 600;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity .25s, transform .25s;
-      z-index: 999;
-      white-space: nowrap;
-    }
-    #toast.show {
-      opacity: 1;
-      transform: translateX(-50%) translateY(0);
-    }
-    #toast.success { border-color: var(--accent2); color: var(--accent2); }
-    #toast.error   { border-color: var(--warn);   color: var(--warn); }
-
-    /* ── NAV ──────────────────────────────────────────── */
-    nav {
-      position: fixed;
-      bottom: 0;
-      left: 0; right: 0;
-      background: var(--surface);
-      border-top: 1px solid var(--border);
-      display: flex;
-      z-index: 200;
-    }
-    .nav-btn {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 3px;
-      padding: 10px 0 14px;
+    .metrica-label {
       font-size: .65rem;
       font-weight: 600;
-      color: var(--muted);
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--mid);
+      margin-bottom: 6px;
+    }
+    .metrica-val {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--cream);
+    }
+    .metrica-val.gold { color: var(--gold2); }
+    .metrica-val.green { color: var(--green2); }
+    .metrica-val.red { color: var(--red); }
+
+    /* ── LINHA DE ATUALIZAÇÃO ── */
+    .atualizado {
+      font-size: .72rem;
+      color: var(--mid);
+      text-align: center;
+      padding: 4px 0;
+    }
+
+    /* ── CARD HISTÓRICO ── */
+    .registro-linha {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .registro-linha:last-child { border-bottom: none; }
+    .reg-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .reg-dot.extra  { background: var(--green); }
+    .reg-dot.falta  { background: var(--red); }
+    .reg-dot.ok     { background: var(--mid); }
+    .reg-info { flex: 1; min-width: 0; }
+    .reg-data {
+      font-size: .82rem;
+      font-weight: 600;
+      color: var(--cream);
+    }
+    .reg-horarios {
+      font-size: .7rem;
+      color: var(--mid);
+      margin-top: 2px;
+    }
+    .reg-saldo {
+      font-size: .88rem;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .reg-saldo.pos { color: var(--green2); }
+    .reg-saldo.neg { color: var(--red); }
+    .reg-saldo.zer { color: var(--mid); }
+
+    /* ── SEM DADOS ── */
+    .vazio {
+      text-align: center;
+      padding: 40px 16px;
+      color: var(--mid);
+    }
+    .vazio-icone { font-size: 2.5rem; margin-bottom: 10px; }
+    .vazio-titulo { font-size: .95rem; font-weight: 700; color: var(--cream); margin-bottom: 6px; }
+    .vazio-sub { font-size: .82rem; line-height: 1.5; }
+
+    /* ── TELA DE CONFIG ── */
+    #tela-config {
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+    }
+    #tela-config.oculta { display: none; }
+
+    .cfg-header {
+      padding: calc(18px + var(--safe-top)) 20px 16px;
+      background: var(--bg2);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .btn-voltar {
+      font-size: 1.4rem;
+      color: var(--gold);
       cursor: pointer;
+      padding: 4px 8px;
       background: none;
       border: none;
-      transition: color .15s;
-      text-transform: uppercase;
-      letter-spacing: .06em;
     }
-    .nav-btn svg { width: 22px; height: 22px; }
-    .nav-btn.active { color: var(--accent); }
+    .cfg-titulo { font-size: 1rem; font-weight: 700; }
 
-    /* ── SECTION VISIBILITY ────────────────────────────── */
-    .section { display: none; }
-    .section.active { display: block; }
+    .cfg-corpo {
+      padding: 20px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      max-width: 480px;
+      width: 100%;
+      margin: 0 auto;
+    }
+    .cfg-card {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+    }
+    .cfg-card-titulo {
+      font-size: .68rem;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--mid);
+      margin-bottom: 14px;
+    }
+    .cfg-campo { margin-bottom: 14px; }
+    .cfg-campo:last-of-type { margin-bottom: 0; }
 
-    /* ── LOADING SPINNER ──────────────────────────────── */
-    .spinner {
+    .btn-salvar {
+      width: 100%;
+      padding: 15px;
+      border-radius: 13px;
+      border: none;
+      background: var(--gold);
+      color: #09090b;
+      font-size: .95rem;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 4px;
+    }
+    .btn-testar {
+      width: 100%;
+      padding: 13px;
+      border-radius: 13px;
+      border: 1px solid var(--border2);
+      background: var(--bg4);
+      color: var(--cream);
+      font-size: .9rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+
+    /* ── SPINNER ── */
+    .spin {
       display: inline-block;
-      width: 16px; height: 16px;
-      border: 2px solid rgba(255,255,255,.3);
-      border-top-color: #fff;
+      width: 18px; height: 18px;
+      border: 2px solid rgba(9,9,11,.3);
+      border-top-color: #09090b;
       border-radius: 50%;
       animation: spin .7s linear infinite;
       vertical-align: middle;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* ── EMPTY STATE ─────────────────────────────────── */
-    .empty {
-      text-align: center;
-      padding: 32px 16px;
-      color: var(--muted);
-      font-size: .88rem;
-    }
-    .empty svg { width: 48px; height: 48px; margin-bottom: 12px; opacity: .4; }
-
-    /* ── LOGIN SCREEN ─────────────────────────────────── */
-    #login-screen {
+    /* ── TOAST ── */
+    #toast {
       position: fixed;
-      inset: 0;
-      background: var(--bg);
-      z-index: 9999;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
+      bottom: calc(24px + var(--safe-bot));
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: var(--bg3);
+      border: 1px solid var(--border2);
+      border-radius: 12px;
+      padding: 12px 20px;
+      font-size: .85rem;
+      font-weight: 600;
+      color: var(--cream);
+      white-space: nowrap;
+      z-index: 999;
+      transition: transform .3s cubic-bezier(.16,1,.3,1);
+      pointer-events: none;
     }
-    #login-screen.hidden { display: none; }
-    .login-box {
-      width: 100%;
-      max-width: 380px;
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 32px 28px;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-    .login-box h2 { font-size: 1.3rem; font-weight: 800; }
-    .login-box h2 span { color: var(--accent); }
-    .login-box p { font-size: .85rem; color: var(--muted); }
-
-    /* ── UTIL ─────────────────────────────────────────── */
-    .mt-8  { margin-top: 8px; }
-    .mt-12 { margin-top: 12px; }
-    .gap-8 { gap: 8px; }
-    .flex  { display: flex; }
-    .flex-col { flex-direction: column; }
-    .text-sm { font-size: .82rem; }
-    .text-muted { color: var(--muted); }
-    .text-right { text-align: right; }
-    .hidden { display: none !important; }
-
-    /* ── PULL INDICATOR ───────────────────────────────── */
-    #sync-indicator {
-      text-align: center;
-      font-size: .75rem;
-      color: var(--muted);
-      padding: 6px;
-    }
-    #sync-indicator.syncing { color: var(--accent); }
-    #sync-indicator.ok      { color: var(--accent2); }
-    #sync-indicator.err     { color: var(--warn); }
+    #toast.show { transform: translateX(-50%) translateY(0); }
+    #toast.ok  { border-color: var(--green); color: var(--green2); }
+    #toast.err { border-color: var(--red);   color: var(--red); }
   </style>
 </head>
 <body>
 
-<!-- ═══════════════════════════════════════════════════════
-     LOGIN SCREEN
-═══════════════════════════════════════════════════════ -->
-<div id="login-screen">
+<!-- ══════════════════════════════════════
+     TELA 1: LOGIN
+══════════════════════════════════════ -->
+<div id="tela-login">
+  <div class="logo-wrap">
+    <div class="logo-icone">⏱</div>
+    <div class="logo-nome">HR <span>Mármores</span></div>
+    <div class="logo-sub">Consulta de horas e saldo</div>
+  </div>
+
   <div class="login-box">
+    <div class="login-title">Qual é o seu nome?</div>
     <div>
-      <h2>Sistema de <span>Ponto</span></h2>
-      <p class="mt-8">Faça login para registrar sua presença.</p>
+      <div class="campo-label">Nome</div>
+      <input id="inp-nome" class="campo-input" type="text"
+             placeholder="Ex: Hangel" autocomplete="name"
+             oninput="erroClear()" />
     </div>
-    <div class="form-group">
-      <label>Seu nome (como está cadastrado)</label>
-      <input id="login-nome" type="text" placeholder="Ex: João Silva" autocomplete="name" />
-    </div>
-    <div class="form-group">
-      <label>Senha / PIN</label>
-      <input id="login-senha" type="password" placeholder="••••" />
-    </div>
-    <p id="login-erro" class="text-sm" style="color:var(--warn);display:none"></p>
-    <button class="btn btn-primary btn-full" id="btn-login" onclick="doLogin()">Entrar</button>
-    <p class="text-sm text-muted text-right" style="cursor:pointer;text-decoration:underline" onclick="showConfigLogin()">Configurar token / endpoint</p>
+    <div class="erro" id="msg-erro"></div>
+    <button class="btn-entrar" id="btn-entrar" onclick="entrar()">Consultar meu saldo</button>
+    <div class="link-config" onclick="irConfig()">⚙ Configurar conexão</div>
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════════════════
-     HEADER
-═══════════════════════════════════════════════════════ -->
-<header>
-  <h1>Ponto <span>•</span></h1>
-  <div class="header-user">
-    <strong id="header-nome">—</strong>
-    <span id="header-data"></span>
-  </div>
-</header>
+<!-- ══════════════════════════════════════
+     TELA 2: DASHBOARD DO FUNCIONÁRIO
+══════════════════════════════════════ -->
+<div id="tela-principal" class="oculta">
 
-<!-- ═══════════════════════════════════════════════════════
-     MAIN CONTENT
-═══════════════════════════════════════════════════════ -->
-<main class="app-wrap" style="margin-top:16px">
-
-  <!-- ── SYNC STATUS ──────────────────────────────────── -->
-  <div id="sync-indicator">↕ sincronizado</div>
-
-  <!-- ══════════════════ SEÇÃO: PONTO ════════════════════ -->
-  <div class="section active" id="sec-ponto">
-
-    <!-- Relógio -->
-    <div class="card clock-block">
-      <div id="clock">00:00:00</div>
-      <div id="clock-date"></div>
-      <div class="status-row">
-        <div class="badge" id="badge-status">
-          <span>Status</span>—
-        </div>
-        <div class="badge" id="badge-trabalhado">
-          <span>Trabalhado</span>—
-        </div>
-        <div class="badge" id="badge-previsto">
-          <span>Previsto saída</span>—
-        </div>
-      </div>
+  <div class="header">
+    <div class="header-avatar" id="hdr-avatar">H</div>
+    <div class="header-info">
+      <div class="header-nome" id="hdr-nome">—</div>
+      <div class="header-sub" id="hdr-sub">HR Mármores e Granitos</div>
     </div>
-
-    <!-- Botão principal -->
-    <button class="btn-ponto" id="btn-ponto-main" onclick="baterPonto()">
-      <span id="btn-ponto-label">⬤ Registrar Entrada</span>
-      <small id="btn-ponto-sub">Início do expediente</small>
-    </button>
-
-    <!-- Botões secundários -->
-    <div class="flex gap-8" id="btn-secundarios">
-      <button class="btn btn-ghost btn-full" id="btn-almoco" onclick="baterAlmoco()" disabled>
-        🍽 Almoço
-      </button>
-      <button class="btn btn-ghost btn-full" id="btn-voltar" onclick="baterVolta()" disabled>
-        ↩ Voltar
-      </button>
-    </div>
-
-    <!-- Registros de hoje -->
-    <div class="card">
-      <div class="card-title">Hoje</div>
-      <div id="registros-hoje" class="registros-list">
-        <div class="empty">Nenhum registro hoje.</div>
-      </div>
-    </div>
-
-    <!-- Observação opcional -->
-    <div class="card">
-      <div class="card-title">Observação (opcional)</div>
-      <div class="form-group">
-        <input id="obs-input" type="text" placeholder="Ex: home office, atraso justificado..." maxlength="120" />
-      </div>
-    </div>
-
-    <!-- Saldo de horas (calculado pelo gerente) -->
-    <div class="card" id="card-saldo" style="display:none">
-      <div class="card-title">Meu Saldo (calculado pelo gerente)</div>
-      <div class="status-row">
-        <div class="badge" id="saldo-horas" style="flex:2">
-          <span>Saldo de horas</span>—
-        </div>
-        <div class="badge" id="saldo-valor">
-          <span>A receber</span>—
-        </div>
-      </div>
-      <div id="saldo-atualizado" style="font-size:.68rem;color:var(--muted);margin-top:8px;text-align:right"></div>
-    </div>
-
-  </div><!-- /sec-ponto -->
-
-  <!-- ══════════════════ SEÇÃO: HISTÓRICO ════════════════ -->
-  <div class="section" id="sec-historico">
-    <div class="card">
-      <div class="card-title">Meu Histórico</div>
-      <div class="flex gap-8 mt-8">
-        <div class="form-group" style="flex:1">
-          <label>Mês</label>
-          <select id="hist-mes" onchange="renderHistorico()"></select>
-        </div>
-        <div class="form-group" style="flex:1">
-          <label>Ano</label>
-          <select id="hist-ano" onchange="renderHistorico()"></select>
-        </div>
-      </div>
-    </div>
-    <div id="historico-wrap" style="margin-top:8px"></div>
+    <div class="header-sair" onclick="sair()">Sair</div>
   </div>
 
-  <!-- ══════════════════ SEÇÃO: CONFIG ═══════════════════ -->
-  <div class="section" id="sec-config">
+  <div class="conteudo">
 
-    <div class="card">
-      <div class="card-title">Conexão com Servidor</div>
-
-      <div class="config-item">
-        <label class="text-sm text-muted">Modo de armazenamento</label>
-        <select id="cfg-modo" onchange="onModoChange()">
-          <option value="gist">GitHub Gist (padrão)</option>
-          <option value="api">API própria (servidor Flask)</option>
-        </select>
-      </div>
-
-      <!-- GitHub Gist config -->
-      <div id="cfg-gist-section">
-        <div class="config-item">
-          <label class="text-sm text-muted">GitHub Token</label>
-          <input id="cfg-token" type="password" placeholder="ghp_..." />
-          <span class="text-sm text-muted">Token com permissão de leitura/escrita em Gists</span>
+    <!-- Card: A Receber -->
+    <div class="card-saldo" id="card-principal">
+      <div class="card-barra verde"></div>
+      <div class="card-inner">
+        <div class="card-titulo">💰 Meu Saldo Atual</div>
+        <div class="valor-principal">
+          <div class="valor-label">A receber por horas extras</div>
+          <div class="valor-num" id="val-apagar">—</div>
         </div>
-        <div class="config-item">
-          <label class="text-sm text-muted">Gist ID</label>
-          <input id="cfg-gist-id" type="text" placeholder="abc123def456..." />
-          <span class="text-sm text-muted">ID do Gist onde os dados ficam salvos</span>
+        <div class="metricas">
+          <div class="metrica">
+            <div class="metrica-label">Saldo de horas</div>
+            <div class="metrica-val green" id="val-saldo">—</div>
+          </div>
+          <div class="metrica">
+            <div class="metrica-label">Valor/hora extra</div>
+            <div class="metrica-val gold" id="val-hora-ext">—</div>
+          </div>
+          <div class="metrica">
+            <div class="metrica-label">Já recebido</div>
+            <div class="metrica-val" id="val-pago">—</div>
+          </div>
+          <div class="metrica">
+            <div class="metrica-label">Dias registrados</div>
+            <div class="metrica-val" id="val-dias">—</div>
+          </div>
         </div>
-      </div>
-
-      <!-- API config -->
-      <div id="cfg-api-section" class="hidden">
-        <div class="config-item">
-          <label class="text-sm text-muted">URL da API</label>
-          <input id="cfg-api-url" type="url" placeholder="https://meuservidor.railway.app" />
-        </div>
-        <div class="config-item">
-          <label class="text-sm text-muted">Chave de API (se necessário)</label>
-          <input id="cfg-api-key" type="password" placeholder="Bearer token ou chave..." />
-        </div>
-      </div>
-
-      <button class="btn btn-primary btn-full" onclick="salvarConfig()">Salvar configuração</button>
-      <button class="btn btn-ghost btn-full mt-8" onclick="testarConexao()">Testar conexão</button>
-    </div>
-
-    <div class="card">
-      <div class="card-title">Funcionário</div>
-      <div class="config-item">
-        <label class="text-sm text-muted">Nome completo</label>
-        <input id="cfg-nome" type="text" placeholder="Seu nome" />
-      </div>
-      <div class="config-item">
-        <label class="text-sm text-muted">Senha / PIN de acesso</label>
-        <input id="cfg-senha" type="password" placeholder="••••" />
-      </div>
-      <div class="config-item">
-        <label class="text-sm text-muted">Carga horária diária</label>
-        <select id="cfg-carga">
-          <option value="6">6 horas</option>
-          <option value="8" selected>8 horas</option>
-          <option value="9">9 horas</option>
-        </select>
       </div>
     </div>
 
-    <div class="card">
-      <div class="card-title">Conta</div>
-      <button class="btn btn-ghost btn-full" onclick="doLogout()">Sair da conta</button>
-      <button class="btn btn-danger btn-full mt-8" onclick="limparDadosLocais()">Limpar dados locais</button>
+    <div class="atualizado" id="txt-atualizado"></div>
+
+    <!-- Card: Registros diários -->
+    <div class="card-saldo" id="card-registros" style="display:none">
+      <div class="card-barra"></div>
+      <div class="card-inner">
+        <div class="card-titulo">📅 Registros Diários</div>
+        <div id="lista-registros"></div>
+      </div>
     </div>
 
-    <div class="card">
-      <div class="card-title">Acesso Gerencial</div>
-      <a href="gerente.html" style="display:block;text-align:center;padding:12px;border-radius:10px;background:var(--surface);border:1px solid var(--border);color:var(--muted);font-size:.85rem;text-decoration:none">
-        🏢 Abrir Painel do Gerente
-      </a>
+    <!-- Estado vazio -->
+    <div class="vazio" id="div-vazio" style="display:none">
+      <div class="vazio-icone">📋</div>
+      <div class="vazio-titulo">Sem dados ainda</div>
+      <div class="vazio-sub">O gerente ainda não publicou<br>seu saldo. Aguarde a atualização.</div>
     </div>
 
-  </div><!-- /sec-config -->
+  </div>
+</div>
 
-</main>
+<!-- ══════════════════════════════════════
+     TELA 3: CONFIGURAÇÕES
+══════════════════════════════════════ -->
+<div id="tela-config" class="oculta">
+  <div class="cfg-header">
+    <button class="btn-voltar" onclick="voltarLogin()">‹</button>
+    <div class="cfg-titulo">Configurar Conexão</div>
+  </div>
+  <div class="cfg-corpo">
+    <div class="cfg-card">
+      <div class="cfg-card-titulo">☁ GitHub Gist</div>
+      <div class="cfg-campo">
+        <div class="campo-label">GitHub Token (PAT)</div>
+        <input id="cfg-token" class="campo-input" type="password" placeholder="ghp_..." />
+      </div>
+      <div class="cfg-campo">
+        <div class="campo-label">ID do Gist</div>
+        <input id="cfg-gist" class="campo-input" type="text" placeholder="abc123def456..." />
+        <div style="font-size:.72rem;color:var(--mid);margin-top:6px">
+          O ID é fornecido pelo gerente após a primeira publicação.
+        </div>
+      </div>
+      <button class="btn-salvar" onclick="salvarConfig()">💾 Salvar</button>
+      <button class="btn-testar" onclick="testarConfig()">Testar conexão</button>
+    </div>
+  </div>
+</div>
 
-<!-- ═══════════════════════════════════════════════════════
-     NAV BAR
-═══════════════════════════════════════════════════════ -->
-<nav>
-  <button class="nav-btn active" id="nav-ponto" onclick="showSection('ponto')">
-    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-      <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
-    </svg>
-    Ponto
-  </button>
-  <button class="nav-btn" id="nav-historico" onclick="showSection('historico')">
-    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-      <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-    </svg>
-    Histórico
-  </button>
-  <button class="nav-btn" id="nav-config" onclick="showSection('config')">
-    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-      <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/>
-    </svg>
-    Config
-  </button>
-</nav>
-
-<!-- ── TOAST ──────────────────────────────────────────── -->
 <div id="toast"></div>
 
-<!-- ═══════════════════════════════════════════════════════
-     SERVICE WORKER REGISTRATION
-═══════════════════════════════════════════════════════ -->
 <script>
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('sw.js').catch(() => {});
 }
 </script>
 
-<!-- ═══════════════════════════════════════════════════════
-     JAVASCRIPT PRINCIPAL
-═══════════════════════════════════════════════════════ -->
 <script>
 'use strict';
 
-/* ══════════════════════════════════════════════════════════
-   ESTADO GLOBAL
-══════════════════════════════════════════════════════════ */
-const STATE = {
-  usuario: null,     // { nome, senha, cargaHoras }
-  config: null,      // { modo, token, gistId, apiUrl, apiKey }
-  dadosGist: {},     // { "YYYY-MM-DD": [ {tipo, hora, obs}, ... ] }
-  hoje: '',
-  syncing: false,
-};
-
-/* ══════════════════════════════════════════════════════════
-   UTILS
-══════════════════════════════════════════════════════════ */
-function padZ(n) { return String(n).padStart(2, '0'); }
-
-function hojeStr() {
-  const d = new Date();
-  return `${d.getFullYear()}-${padZ(d.getMonth()+1)}-${padZ(d.getDate())}`;
-}
-
-function horaAtual() {
-  const d = new Date();
-  return `${padZ(d.getHours())}:${padZ(d.getMinutes())}:${padZ(d.getSeconds())}`;
-}
-
-function horaParaMin(h) {
-  const [hh, mm, ss='00'] = h.split(':');
-  return parseInt(hh)*60 + parseInt(mm) + parseInt(ss)/60;
-}
-
-function minParaHora(min) {
-  const h = Math.floor(Math.abs(min)/60);
-  const m = Math.floor(Math.abs(min)%60);
-  return `${padZ(h)}:${padZ(m)}`;
-}
-
-function dataFormatada(str) {
-  const [y,m,d] = str.split('-');
-  const meses = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
-  const dias  = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
-  const dt = new Date(y, parseInt(m)-1, d);
-  return `${dias[dt.getDay()]}, ${d} ${meses[parseInt(m)-1]} ${y}`;
-}
-
-/* ══════════════════════════════════════════════════════════
-   LOCAL STORAGE
-══════════════════════════════════════════════════════════ */
+/* ══════════════════════════════════════════
+   STORAGE
+══════════════════════════════════════════ */
 function lsGet(k) { try { return JSON.parse(localStorage.getItem(k)); } catch { return null; } }
-function lsSet(k,v) { localStorage.setItem(k, JSON.stringify(v)); }
+function lsSet(k, v) { localStorage.setItem(k, JSON.stringify(v)); }
 
-function carregarConfig() {
-  return lsGet('ponto_config') || {};
-}
-function salvarConfigLocal(cfg) {
-  lsSet('ponto_config', cfg);
+function getConfig() { return lsGet('hr_cfg_func') || { token: '', gistId: '' }; }
+function setConfig(c) { lsSet('hr_cfg_func', c); }
+
+/* ══════════════════════════════════════════
+   NAVEGAÇÃO
+══════════════════════════════════════════ */
+function mostrar(id) {
+  ['tela-login', 'tela-principal', 'tela-config'].forEach(t => {
+    const el = document.getElementById(t);
+    el.classList.toggle('oculta', t !== id);
+  });
 }
 
-/* ══════════════════════════════════════════════════════════
+function irConfig() { mostrar('tela-config'); carregarCamposConfig(); }
+function voltarLogin() { mostrar('tela-login'); }
+
+/* ══════════════════════════════════════════
    TOAST
-══════════════════════════════════════════════════════════ */
-let toastTimer = null;
-function showToast(msg, tipo='', dur=2800) {
+══════════════════════════════════════════ */
+let _tt = null;
+function toast(msg, tipo = '') {
   const el = document.getElementById('toast');
   el.textContent = msg;
   el.className = 'show ' + tipo;
-  if (toastTimer) clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => { el.className = ''; }, dur);
+  if (_tt) clearTimeout(_tt);
+  _tt = setTimeout(() => el.className = '', 3000);
 }
 
-/* ══════════════════════════════════════════════════════════
-   NAVEGAÇÃO
-══════════════════════════════════════════════════════════ */
-function showSection(name) {
-  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('sec-' + name).classList.add('active');
-  document.getElementById('nav-' + name).classList.add('active');
-
-  if (name === 'historico') {
-    initHistoricoFiltros();
-    renderHistorico();
-  }
-  if (name === 'config') {
-    preencherConfig();
-  }
-}
-
-/* ══════════════════════════════════════════════════════════
-   RELÓGIO
-══════════════════════════════════════════════════════════ */
-function tickClock() {
-  const d = new Date();
-  const h = `${padZ(d.getHours())}:${padZ(d.getMinutes())}:${padZ(d.getSeconds())}`;
-  document.getElementById('clock').textContent = h;
-
-  const meses = ['janeiro','fevereiro','março','abril','maio','junho',
-                 'julho','agosto','setembro','outubro','novembro','dezembro'];
-  const dias  = ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
-  document.getElementById('clock-date').textContent =
-    `${dias[d.getDay()]}, ${d.getDate()} de ${meses[d.getMonth()]} de ${d.getFullYear()}`;
-  document.getElementById('header-data').textContent =
-    `${padZ(d.getDate())}/${padZ(d.getMonth()+1)}/${d.getFullYear()}`;
-}
-setInterval(tickClock, 1000);
-tickClock();
-
-/* ══════════════════════════════════════════════════════════
-   GIST API
-══════════════════════════════════════════════════════════ */
-async function gistFetch(method='GET', body=null) {
-  const cfg = STATE.config;
-  if (!cfg || !cfg.token || !cfg.gistId) throw new Error('Token ou Gist ID não configurado.');
-
-  const opts = {
-    method,
-    headers: {
-      'Authorization': `token ${cfg.token}`,
-      'Accept': 'application/vnd.github.v3+json',
-      'Content-Type': 'application/json',
-    },
-  };
-  if (body) opts.body = JSON.stringify(body);
-
-  const res = await fetch(`https://api.github.com/gists/${cfg.gistId}`, opts);
-  if (!res.ok) {
-    const txt = await res.text();
-    throw new Error(`GitHub API ${res.status}: ${txt.slice(0,120)}`);
-  }
-  return res.json();
-}
-
-async function carregarDadosGist() {
-  setSyncStatus('syncing', '⟳ sincronizando…');
-  try {
-    const gist = await gistFetch('GET');
-    const nomeArquivo = 'dados_ponto.json';
-    const arquivo = gist.files[nomeArquivo];
-    if (arquivo && arquivo.content) {
-      STATE.dadosGist = JSON.parse(arquivo.content);
-    } else {
-      STATE.dadosGist = {};
-    }
-    setSyncStatus('ok', '✓ sincronizado');
-    return true;
-  } catch (e) {
-    setSyncStatus('err', '✗ offline – dados locais');
-    // fallback para dados locais
-    const local = lsGet('ponto_dados_local');
-    if (local) STATE.dadosGist = local;
-    return false;
-  }
-}
-
-async function salvarDadosGist() {
-  // Salva local sempre
-  lsSet('ponto_dados_local', STATE.dadosGist);
-
-  const cfg = STATE.config;
-  if (!cfg || !cfg.token || !cfg.gistId) return;
-
-  setSyncStatus('syncing', '⟳ salvando…');
-  try {
-    await gistFetch('PATCH', {
-      files: {
-        'dados_ponto.json': {
-          content: JSON.stringify(STATE.dadosGist, null, 2)
-        }
-      }
-    });
-    setSyncStatus('ok', '✓ salvo');
-  } catch (e) {
-    setSyncStatus('err', '✗ erro ao salvar – dados locais mantidos');
-    showToast('Erro ao sincronizar: ' + e.message, 'error', 4000);
-  }
-}
-
-/* ── API PRÓPRIA (Flask) ──────────────────────────────── */
-async function carregarDadosAPI() {
-  const cfg = STATE.config;
-  setSyncStatus('syncing', '⟳ sincronizando…');
-  try {
-    const headers = { 'Content-Type': 'application/json' };
-    if (cfg.apiKey) headers['Authorization'] = `Bearer ${cfg.apiKey}`;
-
-    const res = await fetch(`${cfg.apiUrl}/api/registros?funcionario=${encodeURIComponent(STATE.usuario.nome)}`, { headers });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const dados = await res.json();
-    // Normaliza: espera { "YYYY-MM-DD": [{tipo,hora,obs}] }
-    STATE.dadosGist = dados;
-    setSyncStatus('ok', '✓ sincronizado');
-    return true;
-  } catch(e) {
-    setSyncStatus('err', '✗ offline');
-    const local = lsGet('ponto_dados_local');
-    if (local) STATE.dadosGist = local;
-    return false;
-  }
-}
-
-async function salvarDadosAPI(registro) {
-  lsSet('ponto_dados_local', STATE.dadosGist);
-  const cfg = STATE.config;
-  setSyncStatus('syncing', '⟳ salvando…');
-  try {
-    const headers = { 'Content-Type': 'application/json' };
-    if (cfg.apiKey) headers['Authorization'] = `Bearer ${cfg.apiKey}`;
-
-    const payload = {
-      funcionario: STATE.usuario.nome,
-      data: STATE.hoje,
-      ...registro
-    };
-    const res = await fetch(`${cfg.apiUrl}/api/registros`, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify(payload)
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    setSyncStatus('ok', '✓ salvo');
-  } catch(e) {
-    setSyncStatus('err', '✗ erro ao salvar');
-    showToast('Erro ao enviar: ' + e.message, 'error', 4000);
-  }
-}
-
-/* ── HELPERS ──────────────────────────────────────────── */
-function setSyncStatus(tipo, msg) {
-  const el = document.getElementById('sync-indicator');
-  el.textContent = msg;
-  el.className = tipo;
-}
-
-async function carregarDados() {
-  const cfg = STATE.config;
-  if (!cfg) return;
-  if (cfg.modo === 'api') {
-    await carregarDadosAPI();
-  } else {
-    await carregarDadosGist();
-  }
-}
-
-async function salvarDados(novoRegistro=null) {
-  const cfg = STATE.config;
-  if (!cfg) return;
-  if (cfg.modo === 'api' && novoRegistro) {
-    await salvarDadosAPI(novoRegistro);
-  } else {
-    await salvarDadosGist();
-  }
-}
-
-/* ══════════════════════════════════════════════════════════
-   REGISTROS DO DIA
-══════════════════════════════════════════════════════════ */
-function getRegistrosDia(data) {
-  const nome = STATE.usuario?.nome;
-  if (!nome) return [];
-  const chave = `${nome}::${data}`;
-  return STATE.dadosGist[chave] || [];
-}
-
-function setRegistrosDia(data, lista) {
-  const nome = STATE.usuario?.nome;
-  if (!nome) return;
-  const chave = `${nome}::${data}`;
-  STATE.dadosGist[chave] = lista;
-}
-
-/* ══════════════════════════════════════════════════════════
-   BATER PONTO
-══════════════════════════════════════════════════════════ */
-async function baterPonto() {
-  const registros = getRegistrosDia(STATE.hoje);
-  const obs = document.getElementById('obs-input').value.trim();
-  const hora = horaAtual();
-
-  // Verifica se já tem saída
-  const temSaida = registros.some(r => r.tipo === 'saida');
-  if (temSaida) {
-    showToast('Expediente já encerrado!', 'error');
-    return;
-  }
-
-  const temEntrada = registros.some(r => r.tipo === 'entrada');
-  const tipo = temEntrada ? 'saida' : 'entrada';
-
-  const reg = { tipo, hora, obs };
-  registros.push(reg);
-  setRegistrosDia(STATE.hoje, registros);
-
-  renderRegistrosHoje();
-  atualizarBotoes();
-  document.getElementById('obs-input').value = '';
-
-  await salvarDados(reg);
-  showToast(tipo === 'entrada' ? '✓ Entrada registrada!' : '✓ Saída registrada!', 'success');
-}
-
-async function baterAlmoco() {
-  const registros = getRegistrosDia(STATE.hoje);
-  const hora = horaAtual();
-  const obs = document.getElementById('obs-input').value.trim();
-
-  const temAlmocoInicio = registros.some(r => r.tipo === 'almoco-inicio');
-  if (temAlmocoInicio) {
-    showToast('Almoço já iniciado!', 'error');
-    return;
-  }
-
-  const reg = { tipo: 'almoco-inicio', hora, obs };
-  registros.push(reg);
-  setRegistrosDia(STATE.hoje, registros);
-
-  renderRegistrosHoje();
-  atualizarBotoes();
-  document.getElementById('obs-input').value = '';
-  await salvarDados(reg);
-  showToast('✓ Saída para almoço!', 'success');
-}
-
-async function baterVolta() {
-  const registros = getRegistrosDia(STATE.hoje);
-  const hora = horaAtual();
-  const obs = document.getElementById('obs-input').value.trim();
-
-  const temAlmocoFim = registros.some(r => r.tipo === 'almoco-fim');
-  if (temAlmocoFim) {
-    showToast('Volta do almoço já registrada!', 'error');
-    return;
-  }
-
-  const reg = { tipo: 'almoco-fim', hora, obs };
-  registros.push(reg);
-  setRegistrosDia(STATE.hoje, registros);
-
-  renderRegistrosHoje();
-  atualizarBotoes();
-  document.getElementById('obs-input').value = '';
-  await salvarDados(reg);
-  showToast('✓ Retorno do almoço!', 'success');
-}
-
-/* ══════════════════════════════════════════════════════════
-   CÁLCULO DE HORAS
-══════════════════════════════════════════════════════════ */
-function calcularHorasTrabalhadas(registros) {
-  // Soma períodos trabalhados
-  const entrada   = registros.find(r => r.tipo === 'entrada');
-  const almInicio = registros.find(r => r.tipo === 'almoco-inicio');
-  const almFim    = registros.find(r => r.tipo === 'almoco-fim');
-  const saida     = registros.find(r => r.tipo === 'saida');
-
-  if (!entrada) return null;
-
-  const agora = horaAtual();
-  let totalMin = 0;
-
-  // Período 1: entrada → almoço (ou saída ou agora)
-  const fim1 = almInicio ? almInicio.hora : (saida ? saida.hora : agora);
-  totalMin += horaParaMin(fim1) - horaParaMin(entrada.hora);
-
-  // Período 2: volta almoço → saída (ou agora)
-  if (almFim) {
-    const fim2 = saida ? saida.hora : agora;
-    totalMin += horaParaMin(fim2) - horaParaMin(almFim.hora);
-  }
-
-  return totalMin;
-}
-
-function previsaoSaida(registros) {
-  const entrada = registros.find(r => r.tipo === 'entrada');
-  if (!entrada) return '—';
-  const carga = (STATE.usuario?.cargaHoras || 8) * 60;
-  const almInicio = registros.find(r => r.tipo === 'almoco-inicio');
-  const almFim    = registros.find(r => r.tipo === 'almoco-fim');
-
-  let almocoMin = 0;
-  if (almInicio && almFim) {
-    almocoMin = horaParaMin(almFim.hora) - horaParaMin(almInicio.hora);
-  } else if (almInicio) {
-    almocoMin = 60; // estima 1h
-  }
-
-  const saidaMin = horaParaMin(entrada.hora) + carga + almocoMin;
-  const h = Math.floor(saidaMin / 60) % 24;
-  const m = Math.floor(saidaMin % 60);
-  return `${padZ(h)}:${padZ(m)}`;
-}
-
-/* ══════════════════════════════════════════════════════════
-   RENDER REGISTROS HOJE
-══════════════════════════════════════════════════════════ */
-function renderRegistrosHoje() {
-  const registros = getRegistrosDia(STATE.hoje);
-  const wrap = document.getElementById('registros-hoje');
-
-  if (registros.length === 0) {
-    wrap.innerHTML = '<div class="empty">Nenhum registro hoje.</div>';
-    return;
-  }
-
-  const labels = {
-    'entrada':      'Entrada',
-    'saida':        'Saída',
-    'almoco-inicio':'Almoço (saída)',
-    'almoco-fim':   'Almoço (volta)',
-  };
-
-  wrap.innerHTML = registros.map(r => `
-    <div class="registro-item">
-      <span class="tipo ${r.tipo}">${labels[r.tipo] || r.tipo}</span>
-      <span class="registro-hora">${r.hora}</span>
-      ${r.obs ? `<span class="registro-obs">${r.obs}</span>` : ''}
-    </div>
-  `).join('');
-
-  // Atualizar badges
-  const min = calcularHorasTrabalhadas(registros);
-  const entrada = registros.find(r => r.tipo === 'entrada');
-  const saida   = registros.find(r => r.tipo === 'saida');
-
-  // Status badge
-  const badgeStatus = document.getElementById('badge-status');
-  if (!entrada) {
-    badgeStatus.innerHTML = '<span>Status</span>Aguardando';
-    badgeStatus.className = 'badge';
-  } else if (saida) {
-    badgeStatus.innerHTML = '<span>Status</span>Encerrado';
-    badgeStatus.className = 'badge';
-  } else {
-    const almAlmocoInicio = registros.find(r => r.tipo === 'almoco-inicio');
-    const almAlmocoFim    = registros.find(r => r.tipo === 'almoco-fim');
-    if (almAlmocoInicio && !almAlmocoFim) {
-      badgeStatus.innerHTML = '<span>Status</span>Almoço';
-      badgeStatus.className = 'badge warn';
-    } else {
-      badgeStatus.innerHTML = '<span>Status</span>Trabalhando';
-      badgeStatus.className = 'badge active';
-    }
-  }
-
-  document.getElementById('badge-trabalhado').innerHTML =
-    `<span>Trabalhado</span>${min !== null ? minParaHora(min) : '—'}`;
-  document.getElementById('badge-previsto').innerHTML =
-    `<span>Previsto saída</span>${previsaoSaida(registros)}`;
-}
-
-/* ══════════════════════════════════════════════════════════
-   ATUALIZAR BOTÕES
-══════════════════════════════════════════════════════════ */
-function atualizarBotoes() {
-  const registros = getRegistrosDia(STATE.hoje);
-  const temEntrada      = registros.some(r => r.tipo === 'entrada');
-  const temAlmocoInicio = registros.some(r => r.tipo === 'almoco-inicio');
-  const temAlmocoFim    = registros.some(r => r.tipo === 'almoco-fim');
-  const temSaida        = registros.some(r => r.tipo === 'saida');
-
-  const btnMain  = document.getElementById('btn-ponto-main');
-  const lblMain  = document.getElementById('btn-ponto-label');
-  const subMain  = document.getElementById('btn-ponto-sub');
-  const btnAlm   = document.getElementById('btn-almoco');
-  const btnVolta = document.getElementById('btn-voltar');
-
-  if (!temEntrada) {
-    lblMain.textContent = '⬤ Registrar Entrada';
-    subMain.textContent = 'Início do expediente';
-    btnMain.className = 'btn-ponto';
-    btnMain.disabled = false;
-    btnAlm.disabled = true;
-    btnVolta.disabled = true;
-  } else if (temSaida) {
-    lblMain.textContent = '✓ Expediente encerrado';
-    subMain.textContent = 'Bom descanso!';
-    btnMain.className = 'btn-ponto';
-    btnMain.disabled = true;
-    btnAlm.disabled = true;
-    btnVolta.disabled = true;
-  } else if (temAlmocoInicio && !temAlmocoFim) {
-    lblMain.textContent = '⬤ Registrar Saída';
-    subMain.textContent = 'Encerrar expediente';
-    btnMain.className = 'btn-ponto saida';
-    btnMain.disabled = true; // não pode sair ainda (deve voltar do almoço)
-    btnAlm.disabled = true;
-    btnVolta.disabled = false;
-  } else {
-    // Tem entrada, sem almoço início, sem saída
-    lblMain.textContent = '⬤ Registrar Saída';
-    subMain.textContent = 'Encerrar expediente';
-    btnMain.className = 'btn-ponto saida';
-    btnMain.disabled = false;
-    btnAlm.disabled = temAlmocoInicio; // se já bateu, disable
-    btnVolta.disabled = true;
-  }
-
-  // Se voltou do almoço, libera saída
-  if (temAlmocoFim && !temSaida) {
-    btnMain.disabled = false;
-  }
-}
-
-/* ══════════════════════════════════════════════════════════
-   HISTÓRICO
-══════════════════════════════════════════════════════════ */
-function initHistoricoFiltros() {
-  const selMes = document.getElementById('hist-mes');
-  const selAno = document.getElementById('hist-ano');
-
-  if (selMes.options.length === 0) {
-    const meses = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho',
-                   'Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
-    meses.forEach((m,i) => {
-      const opt = new Option(m, padZ(i+1));
-      selMes.appendChild(opt);
-    });
-    const hoje = new Date();
-    selMes.value = padZ(hoje.getMonth()+1);
-
-    for (let y = 2024; y <= hoje.getFullYear()+1; y++) {
-      selAno.appendChild(new Option(y, y));
-    }
-    selAno.value = hoje.getFullYear();
-  }
-}
-
-function renderHistorico() {
-  const mes = document.getElementById('hist-mes')?.value;
-  const ano = document.getElementById('hist-ano')?.value;
-  if (!mes || !ano) return;
-
-  const wrap = document.getElementById('historico-wrap');
-  const nome = STATE.usuario?.nome;
-  if (!nome) return;
-
-  const prefixo = `${nome}::${ano}-${mes}`;
-  const dias = Object.keys(STATE.dadosGist)
-    .filter(k => k.startsWith(prefixo))
-    .sort()
-    .reverse();
-
-  if (dias.length === 0) {
-    wrap.innerHTML = '<div class="empty" style="padding:32px 0">Sem registros neste mês.</div>';
-    return;
-  }
-
-  wrap.innerHTML = dias.map(chave => {
-    const data = chave.split('::')[1];
-    const regs = STATE.dadosGist[chave] || [];
-    const min  = calcularHorasTrabalhadas(regs);
-
-    const labels = {
-      'entrada':      'Entrada',
-      'saida':        'Saída',
-      'almoco-inicio':'Alm. (saída)',
-      'almoco-fim':   'Alm. (volta)',
-    };
-
-    const linhas = regs.map(r => `
-      <div class="registro-item" style="font-size:.8rem">
-        <span class="tipo ${r.tipo}">${labels[r.tipo]||r.tipo}</span>
-        <span class="registro-hora">${r.hora}</span>
-        ${r.obs ? `<span class="registro-obs">${r.obs}</span>` : ''}
-      </div>
-    `).join('');
-
-    return `
-      <div class="historico-day">
-        <div class="historico-day-header" onclick="toggleDay(this)">
-          <span>${dataFormatada(data)}</span>
-          <span class="total-horas">${min !== null ? minParaHora(min)+'h' : '—'}</span>
-        </div>
-        <div class="historico-day-body">
-          ${linhas || '<div class="empty" style="padding:12px 0">Sem registros.</div>'}
-        </div>
-      </div>
-    `;
-  }).join('');
-}
-
-function toggleDay(header) {
-  const body = header.nextElementSibling;
-  body.classList.toggle('open');
-}
-
-/* ══════════════════════════════════════════════════════════
+/* ══════════════════════════════════════════
    CONFIG
-══════════════════════════════════════════════════════════ */
-function preencherConfig() {
-  const cfg = STATE.config || {};
-  document.getElementById('cfg-modo').value = cfg.modo || 'gist';
-  document.getElementById('cfg-token').value = cfg.token || '';
-  document.getElementById('cfg-gist-id').value = cfg.gistId || '';
-  document.getElementById('cfg-api-url').value = cfg.apiUrl || '';
-  document.getElementById('cfg-api-key').value = cfg.apiKey || '';
-  document.getElementById('cfg-nome').value = STATE.usuario?.nome || '';
-  document.getElementById('cfg-senha').value = STATE.usuario?.senha || '';
-  document.getElementById('cfg-carga').value = STATE.usuario?.cargaHoras || 8;
-  onModoChange();
-}
-
-function onModoChange() {
-  const modo = document.getElementById('cfg-modo').value;
-  document.getElementById('cfg-gist-section').classList.toggle('hidden', modo !== 'gist');
-  document.getElementById('cfg-api-section').classList.toggle('hidden', modo !== 'api');
+══════════════════════════════════════════ */
+function carregarCamposConfig() {
+  const c = getConfig();
+  document.getElementById('cfg-token').value = c.token || '';
+  document.getElementById('cfg-gist').value  = c.gistId || '';
 }
 
 function salvarConfig() {
-  const modo = document.getElementById('cfg-modo').value;
-  const cfg = {
-    modo,
-    token:  document.getElementById('cfg-token').value.trim(),
-    gistId: document.getElementById('cfg-gist-id').value.trim(),
-    apiUrl: document.getElementById('cfg-api-url').value.trim(),
-    apiKey: document.getElementById('cfg-api-key').value.trim(),
-  };
-  salvarConfigLocal(cfg);
-  STATE.config = cfg;
-
-  const nome  = document.getElementById('cfg-nome').value.trim();
-  const senha = document.getElementById('cfg-senha').value;
-  const carga = parseInt(document.getElementById('cfg-carga').value);
-
-  if (nome) {
-    const usr = { nome, senha, cargaHoras: carga };
-    lsSet('ponto_usuario', usr);
-    STATE.usuario = usr;
-    document.getElementById('header-nome').textContent = nome;
-  }
-
-  showToast('✓ Configuração salva!', 'success');
+  const token  = document.getElementById('cfg-token').value.trim();
+  const gistId = document.getElementById('cfg-gist').value.trim();
+  setConfig({ token, gistId });
+  toast('Configuração salva!', 'ok');
+  setTimeout(voltarLogin, 800);
 }
 
-async function testarConexao() {
-  salvarConfig();
+async function testarConfig() {
+  const token  = document.getElementById('cfg-token').value.trim();
+  const gistId = document.getElementById('cfg-gist').value.trim();
+  if (!token || !gistId) { toast('Preencha token e ID primeiro', 'err'); return; }
   try {
-    if (STATE.config.modo === 'gist') {
-      await gistFetch('GET');
-      showToast('✓ Gist conectado!', 'success', 3000);
-    } else {
-      const res = await fetch(`${STATE.config.apiUrl}/api/ping`);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      showToast('✓ API conectada!', 'success', 3000);
-    }
+    const r = await fetch(`https://api.github.com/gists/${gistId}`, {
+      headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github+json' }
+    });
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    const g = await r.json();
+    const temData = !!g.files['data.json'];
+    toast(temData ? '✓ Conectado! data.json encontrado.' : '⚠ Gist OK mas sem data.json ainda.', 'ok');
   } catch(e) {
-    showToast('✗ Erro: ' + e.message.slice(0,60), 'error', 5000);
+    toast('Erro: ' + e.message.slice(0, 60), 'err');
   }
 }
 
-/* ══════════════════════════════════════════════════════════
-   LOGIN
-══════════════════════════════════════════════════════════ */
-function showConfigLogin() {
-  document.getElementById('login-screen').classList.add('hidden');
-  showSection('config');
-  preencherConfig();
+/* ══════════════════════════════════════════
+   FORMATOS
+══════════════════════════════════════════ */
+function fmtBRL(v) {
+  return 'R$ ' + Math.abs(v).toFixed(2)
+    .replace('.', ',')
+    .replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+}
+function fmtHM(mins) {
+  const a = Math.abs(mins);
+  const h = Math.floor(a / 60);
+  const m = a % 60;
+  return (mins < 0 ? '-' : '+') + String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0');
+}
+const DIAS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+function fmtData(s) {
+  const [y,m,d] = s.split('-');
+  const dt = new Date(y, parseInt(m)-1, d);
+  return `${d}/${m} · ${DIAS[dt.getDay()]}`;
 }
 
-async function doLogin() {
-  const nome  = document.getElementById('login-nome').value.trim();
-  const senha = document.getElementById('login-senha').value;
-  const erroEl = document.getElementById('login-erro');
-  const btn    = document.getElementById('btn-login');
-
-  if (!nome) { erroEl.textContent = 'Informe seu nome.'; erroEl.style.display='block'; return; }
-  if (!senha) { erroEl.textContent = 'Informe sua senha ou PIN.'; erroEl.style.display='block'; return; }
-
-  erroEl.style.display = 'none';
-  btn.innerHTML = '<span class="spinner"></span>';
-  btn.disabled = true;
-
-  const usuarioSalvo = lsGet('ponto_usuario');
-  STATE.config = carregarConfig();
-
-  // Tenta verificar se o funcionário existe no data.json do Gist (publicado pelo gerente)
-  let funcGerente = null;
-  if (STATE.config && STATE.config.token && STATE.config.gistId && STATE.config.modo === 'gist') {
-    try {
-      const resp = await fetch(`https://api.github.com/gists/${STATE.config.gistId}`, {
-        headers: {
-          'Authorization': `token ${STATE.config.token}`,
-          'Accept': 'application/vnd.github+json'
-        }
-      });
-      if (resp.ok) {
-        const gist = await resp.json();
-        const arquivo = gist.files['data.json'];
-        if (arquivo && arquivo.content) {
-          const dataJson = JSON.parse(arquivo.content);
-          const funcs = dataJson.funcionarios || [];
-          funcGerente = funcs.find(f =>
-            f.nome && f.nome.toLowerCase() === nome.toLowerCase()
-          );
-        }
+/* ══════════════════════════════════════════
+   BUSCAR DADOS DO GIST
+══════════════════════════════════════════ */
+async function buscarDados(nome) {
+  const cfg = getConfig();
+  if (!cfg.token || !cfg.gistId) {
+    return { erro: 'sem_config' };
+  }
+  try {
+    const r = await fetch(`https://api.github.com/gists/${cfg.gistId}`, {
+      headers: {
+        'Authorization': `token ${cfg.token}`,
+        'Accept': 'application/vnd.github+json'
       }
-    } catch(e) { /* fallback para local */ }
+    });
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    const gist = await r.json();
+    const arq = gist.files['data.json'];
+    if (!arq || !arq.content) return { erro: 'sem_dados' };
+    const payload = JSON.parse(arq.content);
+    const funcs = payload.funcionarios || [];
+    const eu = funcs.find(f =>
+      f.nome && f.nome.toLowerCase() === nome.toLowerCase()
+    );
+    if (!eu) return { erro: 'nao_encontrado', payload };
+    return { ok: true, dados: eu, atualizado_em: payload.atualizado_em };
+  } catch(e) {
+    return { erro: 'conexao', msg: e.message };
+  }
+}
+
+/* ══════════════════════════════════════════
+   RENDERIZAR DASHBOARD
+══════════════════════════════════════════ */
+function renderDashboard(nome, dados, atualizadoEm) {
+  // Header
+  document.getElementById('hdr-avatar').textContent = nome[0].toUpperCase();
+  document.getElementById('hdr-nome').textContent =
+    nome.charAt(0).toUpperCase() + nome.slice(1);
+  document.getElementById('hdr-sub').textContent = 'HR Mármores e Granitos';
+
+  // Valores principais
+  const aPagar = dados.a_pagar ?? 0;
+  const saldoMin = dados.saldo_min ?? 0;
+
+  const valEl = document.getElementById('val-apagar');
+  valEl.textContent = fmtBRL(aPagar);
+  valEl.className = 'valor-num' + (aPagar <= 0 ? ' neutro' : '');
+
+  const saldoEl = document.getElementById('val-saldo');
+  saldoEl.textContent = dados.saldo_fmt || fmtHM(saldoMin);
+  saldoEl.className = 'metrica-val ' + (saldoMin >= 0 ? 'green' : 'red');
+
+  document.getElementById('val-hora-ext').textContent =
+    dados.valor_hora_ext_fmt || (dados.valor_hora_ext ? fmtBRL(dados.valor_hora_ext) : '—');
+  document.getElementById('val-pago').textContent =
+    dados.total_pago_fmt || (dados.total_pago != null ? fmtBRL(dados.total_pago) : '—');
+
+  const regs = dados.registros || [];
+  document.getElementById('val-dias').textContent = regs.length || '—';
+
+  // Atualização
+  if (atualizadoEm || dados.atualizado_em) {
+    document.getElementById('txt-atualizado').textContent =
+      'Atualizado pelo gerente: ' + (atualizadoEm || dados.atualizado_em);
   }
 
-  if (funcGerente) {
-    // Funcionário encontrado no Gist do gerente — aceita qualquer senha (criará conta local)
-    const cargaHoras = funcGerente.jornada || usuarioSalvo?.cargaHoras || 8;
-    const usr = { nome: funcGerente.nome || nome, senha, cargaHoras };
-    lsSet('ponto_usuario', usr);
-    STATE.usuario = usr;
+  // Registros diários
+  if (regs.length) {
+    const cardRegs = document.getElementById('card-registros');
+    cardRegs.style.display = 'block';
+    const lista = document.getElementById('lista-registros');
+    const ordenados = [...regs].sort((a, b) => b.data.localeCompare(a.data));
+    lista.innerHTML = ordenados.map(r => {
+      const cls = r.saldo_min > 0 ? 'pos' : r.saldo_min < 0 ? 'neg' : 'zer';
+      const dotCls = r.status || (r.saldo_min > 0 ? 'extra' : r.saldo_min < 0 ? 'falta' : 'ok');
+      const horarios = (r.horarios || []).join(' → ');
+      const saldoFmt = r.saldo_fmt || fmtHM(r.saldo_min || 0);
+      return `
+        <div class="registro-linha">
+          <div class="reg-dot ${dotCls}"></div>
+          <div class="reg-info">
+            <div class="reg-data">${fmtData(r.data)}</div>
+            ${horarios ? `<div class="reg-horarios">${horarios} · ${r.trabalhados_fmt || ''}h</div>` : ''}
+          </div>
+          <div class="reg-saldo ${cls}">${saldoFmt}</div>
+        </div>`;
+    }).join('');
+    document.getElementById('div-vazio').style.display = 'none';
   } else {
-    // Autenticação local
-    if (!usuarioSalvo) {
-      const usr = { nome, senha, cargaHoras: 8 };
-      lsSet('ponto_usuario', usr);
-      STATE.usuario = usr;
-    } else {
-      if (usuarioSalvo.senha && usuarioSalvo.senha !== senha) {
-        erroEl.textContent = 'Senha incorreta.';
-        erroEl.style.display = 'block';
-        btn.innerHTML = 'Entrar';
-        btn.disabled = false;
-        return;
-      }
-      if (usuarioSalvo.nome.toLowerCase() !== nome.toLowerCase()) {
-        erroEl.textContent = 'Nome não encontrado neste dispositivo.';
-        erroEl.style.display = 'block';
-        btn.innerHTML = 'Entrar';
-        btn.disabled = false;
-        return;
-      }
-      STATE.usuario = usuarioSalvo;
-    }
+    document.getElementById('card-registros').style.display = 'none';
+    document.getElementById('div-vazio').style.display = 'block';
   }
 
-  STATE.hoje = hojeStr();
-  await carregarDados();
-  await carregarSaldoGerente();
+  mostrar('tela-principal');
+}
 
-  document.getElementById('header-nome').textContent = STATE.usuario.nome;
-  document.getElementById('login-screen').classList.add('hidden');
-  renderRegistrosHoje();
-  atualizarBotoes();
+/* ══════════════════════════════════════════
+   ENTRAR
+══════════════════════════════════════════ */
+function erroClear() {
+  document.getElementById('msg-erro').textContent = '';
+}
 
-  btn.innerHTML = 'Entrar';
+async function entrar() {
+  const nome = document.getElementById('inp-nome').value.trim();
+  if (!nome) {
+    document.getElementById('msg-erro').textContent = 'Digite seu nome.';
+    return;
+  }
+
+  const btn = document.getElementById('btn-entrar');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spin"></span>';
+
+  const res = await buscarDados(nome);
+
   btn.disabled = false;
-}
+  btn.textContent = 'Consultar meu saldo';
 
-function doLogout() {
-  STATE.usuario = null;
-  document.getElementById('login-screen').classList.remove('hidden');
-  document.getElementById('login-nome').value = '';
-  document.getElementById('login-senha').value = '';
-  document.getElementById('login-erro').style.display = 'none';
-}
-
-function limparDadosLocais() {
-  if (!confirm('Limpar todos os dados locais? (dados no Gist não serão apagados)')) return;
-  localStorage.removeItem('ponto_dados_local');
-  STATE.dadosGist = {};
-  renderRegistrosHoje();
-  atualizarBotoes();
-  showToast('✓ Dados locais limpos.', 'success');
-}
-
-/* ══════════════════════════════════════════════════════════
-   SALDO DO GERENTE (data.json)
-══════════════════════════════════════════════════════════ */
-async function carregarSaldoGerente() {
-  const cfg = STATE.config;
-  if (!cfg || !cfg.token || !cfg.gistId || cfg.modo !== 'gist') return;
-  const nome = STATE.usuario?.nome;
-  if (!nome) return;
-
-  try {
-    const gist = await gistFetch('GET');
-    const arquivo = gist.files['data.json'];
-    if (!arquivo || !arquivo.content) return;
-
-    const dataJson = JSON.parse(arquivo.content);
-    const funcs = dataJson.funcionarios || [];
-    const eu = funcs.find(f => f.nome && f.nome.toLowerCase() === nome.toLowerCase());
-    if (!eu) return;
-
-    const cardSaldo = document.getElementById('card-saldo');
-    cardSaldo.style.display = 'block';
-
-    const saldoEl = document.getElementById('saldo-horas');
-    const valorEl = document.getElementById('saldo-valor');
-    const atuEl   = document.getElementById('saldo-atualizado');
-
-    const saldoMin = eu.saldo_min || 0;
-    const saldoFmt = eu.saldo_fmt || '00:00';
-    const aPagar   = eu.a_pagar_fmt || 'R$ 0,00';
-    const atuAt    = eu.atualizado_em || dataJson.atualizado_em || '';
-
-    const cor = saldoMin >= 0 ? 'var(--accent2)' : 'var(--warn)';
-    saldoEl.innerHTML = `<span>Saldo de horas</span><strong style="color:${cor}">${saldoFmt}</strong>`;
-    valorEl.innerHTML = `<span>A receber</span><strong style="color:var(--accent2)">${aPagar}</strong>`;
-    atuEl.textContent = atuAt ? `Atualizado pelo gerente: ${atuAt}` : '';
-  } catch(e) {
-    // Silencioso - saldo é opcional
-    console.log('[saldo] não disponível:', e.message);
+  if (res.erro === 'sem_config') {
+    document.getElementById('msg-erro').textContent = '';
+    toast('Configure o token e Gist ID primeiro.', 'err');
+    irConfig();
+    return;
   }
+  if (res.erro === 'conexao') {
+    document.getElementById('msg-erro').textContent = 'Erro de conexão. Verifique sua internet.';
+    return;
+  }
+  if (res.erro === 'sem_dados') {
+    document.getElementById('msg-erro').textContent = 'Dados ainda não publicados pelo gerente.';
+    return;
+  }
+  if (res.erro === 'nao_encontrado') {
+    document.getElementById('msg-erro').textContent = `"${nome}" não encontrado. Verifique o nome.`;
+    return;
+  }
+
+  lsSet('hr_ultimo_nome', nome);
+  renderDashboard(nome, res.dados, res.atualizado_em);
 }
 
-/* ══════════════════════════════════════════════════════════
+function sair() {
+  document.getElementById('inp-nome').value = '';
+  erroClear();
+  document.getElementById('card-registros').style.display = 'none';
+  document.getElementById('div-vazio').style.display = 'none';
+  document.getElementById('txt-atualizado').textContent = '';
+  mostrar('tela-login');
+}
+
+/* ══════════════════════════════════════════
    INIT
-══════════════════════════════════════════════════════════ */
-async function init() {
-  STATE.hoje = hojeStr();
-  STATE.config = carregarConfig();
-  const usuarioSalvo = lsGet('ponto_usuario');
+══════════════════════════════════════════ */
+(function init() {
+  // Preenche nome do último uso
+  const ultimo = lsGet('hr_ultimo_nome');
+  if (ultimo) document.getElementById('inp-nome').value = ultimo;
 
-  // Auto-login se já havia sessão (sem expiração por enquanto)
-  const sessao = lsGet('ponto_sessao');
-  if (sessao && sessao.nome && usuarioSalvo && sessao.nome === usuarioSalvo.nome) {
-    // Hoje é o mesmo dia da sessão ou sessão recente (últimas 12h)
-    if (Date.now() - sessao.ts < 43200000) {
-      STATE.usuario = usuarioSalvo;
-      document.getElementById('header-nome').textContent = STATE.usuario.nome;
-      document.getElementById('login-screen').classList.add('hidden');
+  // Enter no campo nome
+  document.getElementById('inp-nome').addEventListener('keydown', e => {
+    if (e.key === 'Enter') entrar();
+  });
 
-      await carregarDados();
-      await carregarSaldoGerente();
-      renderRegistrosHoje();
-      atualizarBotoes();
-      return;
-    }
+  // Verifica config na inicialização
+  const cfg = getConfig();
+  if (!cfg.token || !cfg.gistId) {
+    // Mostra aviso discreto mas não força ir para config
   }
-}
-
-// Salva sessão quando sai
-window.addEventListener('beforeunload', () => {
-  if (STATE.usuario) {
-    lsSet('ponto_sessao', { nome: STATE.usuario.nome, ts: Date.now() });
-  }
-});
-
-// Atualiza badges a cada 30s sem re-sincronizar
-setInterval(() => {
-  if (STATE.usuario) {
-    renderRegistrosHoje();
-  }
-}, 30000);
-
-// Login on Enter
-document.getElementById('login-senha').addEventListener('keydown', e => {
-  if (e.key === 'Enter') doLogin();
-});
-
-init();
+})();
 </script>
 
 </body>
