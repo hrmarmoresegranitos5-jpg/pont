@@ -1,0 +1,1461 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>HR Mármores — Gerente</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#09090b;--bg2:#111113;--bg3:#18181b;--bg4:#222226;
+  --border:#2a2a30;--border2:#35353d;
+  --gold:#c8a055;--gold2:#e8b96a;--gold3:#f5d080;
+  --cream:#eae6dc;--mid:#7a7a85;--lo:#3a3a42;
+  --green:#4caf7d;--green2:#6dd49a;
+  --red:#d05060;--red2:#e87888;
+  --blue:#4a9eff;
+  --safe-top:env(safe-area-inset-top,0px);
+  --safe-bot:env(safe-area-inset-bottom,0px);
+}
+html,body{height:100%;background:var(--bg);color:var(--cream);font-family:'DM Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased;overflow:hidden}
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:wght@700&display=swap');
+
+#app{height:100dvh;display:flex;flex-direction:column;overflow:hidden;position:relative}
+
+/* ── Screens ── */
+.screen{display:none;flex-direction:column;height:100dvh;overflow:hidden;animation:fadeUp .3s ease both}
+.screen.active{display:flex}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── Header ── */
+.hdr{
+  padding:calc(18px + var(--safe-top)) 20px 16px;
+  background:var(--bg2);
+  border-bottom:1px solid var(--border);
+  flex-shrink:0;
+  display:flex;align-items:center;gap:12px;
+}
+.hdr-logo{width:34px;height:34px;background:var(--gold);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:16px;color:#09090b;font-weight:700;flex-shrink:0}
+.hdr-info{flex:1}
+.hdr-title{font-size:17px;font-weight:600;color:var(--cream)}
+.hdr-sub{font-size:11px;color:var(--mid);letter-spacing:.5px;margin-top:1px}
+.hdr-btn{width:36px;height:36px;border-radius:10px;background:var(--bg4);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;color:var(--mid);transition:.15s}
+.hdr-btn:active{opacity:.7}
+
+/* ── Scroll body ── */
+.body{flex:1;overflow-y:auto;padding:16px 16px calc(16px + var(--safe-bot));display:flex;flex-direction:column;gap:14px}
+.body::-webkit-scrollbar{display:none}
+
+/* ── Cards ── */
+.card{background:var(--bg3);border:1px solid var(--border);border-radius:16px;overflow:hidden}
+.card-bar{height:3px;background:var(--gold)}
+.card-bar.green{background:var(--green)}
+.card-bar.red{background:var(--red)}
+.card-bar.blue{background:var(--blue)}
+.card-inner{padding:16px}
+.card-title{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--mid);margin-bottom:10px;font-weight:600}
+
+/* ── Upload zone ── */
+.upload-zone{
+  border:1.5px dashed var(--border2);border-radius:14px;
+  padding:32px 20px;text-align:center;cursor:pointer;
+  transition:.2s;background:var(--bg4);
+  display:flex;flex-direction:column;align-items:center;gap:8px;
+}
+.upload-zone:active{border-color:var(--gold);background:rgba(200,160,85,.06)}
+.upload-zone.drag{border-color:var(--gold);background:rgba(200,160,85,.08)}
+.upload-icon{font-size:36px;margin-bottom:4px}
+.upload-title{font-size:15px;font-weight:600;color:var(--cream)}
+.upload-sub{font-size:12px;color:var(--mid)}
+#fileInput{display:none}
+
+/* ── Funcionários ── */
+.func-row{
+  display:flex;align-items:center;gap:12px;
+  padding:12px 0;border-bottom:1px solid var(--border);
+  cursor:pointer;transition:.15s;
+}
+.func-row:last-child{border-bottom:none}
+.func-row:active{opacity:.7}
+.func-avatar{width:38px;height:38px;border-radius:50%;background:var(--bg4);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:var(--gold);flex-shrink:0;font-family:'Playfair Display',serif}
+.func-info{flex:1;min-width:0}
+.func-nome{font-size:14px;font-weight:600;color:var(--cream)}
+.func-detalhe{font-size:11px;color:var(--mid);margin-top:2px}
+.func-saldo{text-align:right;flex-shrink:0}
+.func-saldo-val{font-size:14px;font-weight:700}
+.func-saldo-val.pos{color:var(--green)}
+.func-saldo-val.neg{color:var(--red)}
+.func-saldo-val.zer{color:var(--mid)}
+.func-saldo-sub{font-size:10px;color:var(--mid);margin-top:2px}
+
+/* ── Stats row ── */
+.stats-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat-card{background:var(--bg4);border:1px solid var(--border);border-radius:12px;padding:14px}
+.stat-label{font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--mid);margin-bottom:6px}
+.stat-val{font-size:22px;font-weight:700}
+.stat-val.gold{color:var(--gold)}
+.stat-val.green{color:var(--green)}
+.stat-val.red{color:var(--red)}
+.stat-val.blue{color:var(--blue)}
+
+/* ── Botões ── */
+.btn{
+  width:100%;padding:15px;border-radius:13px;border:none;
+  font-size:14px;font-weight:600;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  transition:.15s;letter-spacing:.3px;
+}
+.btn:active{transform:scale(.97)}
+.btn-gold{background:var(--gold);color:#09090b}
+.btn-gold:hover{background:var(--gold2)}
+.btn-outline{background:transparent;color:var(--cream);border:1px solid var(--border2)}
+.btn-outline:hover{background:var(--bg4)}
+.btn-green{background:var(--green);color:#09090b}
+.btn-red{background:var(--red);color:var(--cream)}
+.btn-sm{padding:10px 16px;width:auto;font-size:13px;border-radius:10px}
+
+/* ── Config ── */
+.cfg-row{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.cfg-label{font-size:11px;letter-spacing:.8px;text-transform:uppercase;color:var(--mid);font-weight:600}
+.cfg-input{
+  background:var(--bg4);border:1px solid var(--border2);border-radius:10px;
+  color:var(--cream);font-size:14px;padding:12px 14px;
+  outline:none;transition:.15s;-webkit-appearance:none;
+}
+.cfg-input:focus{border-color:var(--gold)}
+.cfg-input::placeholder{color:var(--lo)}
+
+/* ── Detail screen ── */
+.det-header{padding:calc(18px + var(--safe-top)) 20px 16px;background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;flex-shrink:0}
+.det-back{font-size:20px;color:var(--gold);cursor:pointer;padding:4px;-webkit-tap-highlight-color:transparent}
+.det-name{font-size:18px;font-weight:700;font-family:'Playfair Display',serif;color:var(--cream)}
+.det-sub{font-size:11px;color:var(--mid);margin-top:1px}
+
+.dia-row{padding:10px 0;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.dia-row:last-child{border-bottom:none}
+.dia-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.dia-dot.ok{background:var(--green)}
+.dia-dot.extra{background:var(--blue)}
+.dia-dot.falta{background:var(--red)}
+.dia-info{flex:1;min-width:0}
+.dia-data{font-size:13px;font-weight:500;color:var(--cream)}
+.dia-hrs{font-size:11px;color:var(--mid);margin-top:2px}
+.dia-saldo{font-size:13px;font-weight:700}
+.dia-saldo.pos{color:var(--green)}
+.dia-saldo.neg{color:var(--red)}
+.dia-saldo.zer{color:var(--mid)}
+
+/* ── Pagamento ── */
+.pag-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+.pag-row:last-child{border-bottom:none}
+.pag-icon{font-size:20px}
+.pag-info{flex:1}
+.pag-desc{font-size:13px;font-weight:500;color:var(--cream)}
+.pag-data{font-size:11px;color:var(--mid);margin-top:2px}
+.pag-val{font-size:14px;font-weight:700;color:var(--green)}
+
+/* ── Toast ── */
+#toast{
+  position:fixed;bottom:calc(24px + var(--safe-bot));left:50%;transform:translateX(-50%) translateY(80px);
+  background:var(--bg3);border:1px solid var(--border2);border-radius:12px;
+  padding:12px 20px;font-size:13px;font-weight:500;color:var(--cream);
+  white-space:nowrap;z-index:999;transition:.3s cubic-bezier(.16,1,.3,1);
+  display:flex;align-items:center;gap:8px;box-shadow:0 8px 32px rgba(0,0,0,.6);
+}
+#toast.show{transform:translateX(-50%) translateY(0)}
+#toast.ok{border-color:var(--green);color:var(--green)}
+#toast.err{border-color:var(--red);color:var(--red)}
+
+/* ── Loading ── */
+.loading{display:flex;align-items:center;justify-content:center;gap:10px;padding:32px;color:var(--mid);font-size:14px}
+.spin{width:20px;height:20px;border:2px solid var(--border2);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── Badge ── */
+.badge{display:inline-flex;align-items:center;padding:3px 8px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:.5px}
+.badge.green{background:rgba(76,175,125,.15);color:var(--green2)}
+.badge.red{background:rgba(208,80,96,.15);color:var(--red2)}
+.badge.gold{background:rgba(200,160,85,.15);color:var(--gold2)}
+.badge.mid{background:var(--bg4);color:var(--mid)}
+
+/* ── Nav tabs ── */
+.nav{display:flex;background:var(--bg2);border-top:1px solid var(--border);padding:8px 10px calc(8px + var(--safe-bot));gap:4px;flex-shrink:0}
+.nav-tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 4px;border-radius:10px;cursor:pointer;transition:.15s;-webkit-tap-highlight-color:transparent}
+.nav-tab.active{background:var(--bg4)}
+.nav-tab-icon{font-size:20px}
+.nav-tab-label{font-size:9px;letter-spacing:.5px;text-transform:uppercase;color:var(--mid);font-weight:600}
+.nav-tab.active .nav-tab-label{color:var(--gold)}
+
+/* ── Separator ── */
+.sep{height:1px;background:var(--border);margin:4px 0}
+
+/* ── Modal ── */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;display:none;align-items:flex-end}
+.modal-bg.open{display:flex;animation:fadein .2s ease}
+@keyframes fadein{from{opacity:0}to{opacity:1}}
+.modal{background:var(--bg3);border-radius:20px 20px 0 0;border-top:1px solid var(--border);padding:20px 20px calc(20px + var(--safe-bot));width:100%;animation:slideup .3s cubic-bezier(.16,1,.3,1)}
+@keyframes slideup{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal-title{font-size:16px;font-weight:700;color:var(--cream);margin-bottom:16px}
+
+/* ── Importação status ── */
+.imp-status{background:var(--bg4);border-radius:12px;padding:14px;display:flex;align-items:center;gap:12px}
+.imp-icon{font-size:28px}
+.imp-info{flex:1}
+.imp-nome{font-size:13px;font-weight:600;color:var(--cream)}
+.imp-detalhe{font-size:11px;color:var(--mid);margin-top:2px}
+
+.empty{text-align:center;padding:48px 20px;color:var(--mid)}
+.empty-icon{font-size:40px;margin-bottom:12px}
+.empty-title{font-size:15px;font-weight:600;color:var(--cream);margin-bottom:6px}
+.empty-sub{font-size:13px;line-height:1.5}
+
+.func-edit-row{display:flex;gap:8px;margin-bottom:12px}
+.func-edit-row .cfg-input{flex:1}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- ═══════════════════════════════════════════
+     SCREEN: PRINCIPAL (TABS)
+═══════════════════════════════════════════ -->
+<div class="screen active" id="s-main">
+
+  <div class="hdr">
+    <a href="index.html" class="hdr-btn" style="text-decoration:none" title="App dos Funcionários">👷</a>
+    <div class="hdr-info">
+      <div class="hdr-title">HR Mármores</div>
+      <div class="hdr-sub" id="hdr-sub">Painel do Gerente</div>
+    </div>
+    <div class="hdr-btn" onclick="abrirConfig()">⚙️</div>
+  </div>
+
+  <!-- TAB: IMPORTAR -->
+  <div class="body" id="tab-importar" style="display:flex">
+
+    <div class="card">
+      <div class="card-bar gold"></div>
+      <div class="card-inner">
+        <div class="card-title">📂 Importar Relatório</div>
+        <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()">
+          <div class="upload-icon">📊</div>
+          <div class="upload-title">Selecionar arquivo</div>
+          <div class="upload-sub">XLS, XLSX do relógio de ponto</div>
+        </div>
+        <input type="file" id="fileInput" accept=".xls,.xlsx" onchange="processarArquivo(this)">
+      </div>
+    </div>
+
+    <div id="imp-resultado" style="display:none">
+      <div class="card">
+        <div class="card-bar green"></div>
+        <div class="card-inner">
+          <div class="card-title">✅ Arquivo Lido</div>
+          <div class="imp-status" id="imp-status-box">
+            <div class="imp-icon">📄</div>
+            <div class="imp-info">
+              <div class="imp-nome" id="imp-nome-arquivo">—</div>
+              <div class="imp-detalhe" id="imp-detalhe-arquivo">—</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-label">Funcionários</div>
+          <div class="stat-val blue" id="stat-funcs">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Registros</div>
+          <div class="stat-val gold" id="stat-regs">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Total Extras</div>
+          <div class="stat-val green" id="stat-extras">0h</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">A Pagar</div>
+          <div class="stat-val gold" id="stat-apagar">R$ 0</div>
+        </div>
+      </div>
+
+      <button class="btn btn-gold" id="btnSincronizar" onclick="sincronizarGist()">
+        <span>☁️</span> Publicar Resultado no App dos Funcionários
+      </button>
+      <button class="btn btn-outline" id="btnLerGist" onclick="lerRegistrosGist()">
+        <span>📥</span> Importar Registros do App (Gist)
+      </button>
+      <button class="btn btn-outline" onclick="verFuncionarios()">
+        <span>👥</span> Ver Detalhes por Funcionário
+      </button>
+    </div>
+
+    <div id="imp-loading" style="display:none" class="loading">
+      <div class="spin"></div> Lendo arquivo...
+    </div>
+
+  </div>
+
+  <!-- TAB: FUNCIONÁRIOS -->
+  <div class="body" id="tab-funcionarios" style="display:none">
+    <div class="card">
+      <div class="card-bar gold"></div>
+      <div class="card-inner">
+        <div class="card-title">👥 Funcionários Cadastrados</div>
+        <div id="lista-funcionarios">
+          <div class="empty">
+            <div class="empty-icon">👥</div>
+            <div class="empty-title">Nenhum dado ainda</div>
+            <div class="empty-sub">Importe um relatório primeiro</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: PAGAMENTOS -->
+  <div class="body" id="tab-pagamentos" style="display:none">
+    <div class="card">
+      <div class="card-bar green"></div>
+      <div class="card-inner">
+        <div class="card-title">💰 Folha de Pagamento</div>
+        <div id="lista-pagamentos">
+          <div class="empty">
+            <div class="empty-icon">💰</div>
+            <div class="empty-title">Sem dados</div>
+            <div class="empty-sub">Importe um relatório primeiro</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <nav class="nav">
+    <div class="nav-tab active" id="nav-importar" onclick="trocarTab('importar')">
+      <div class="nav-tab-icon">📂</div>
+      <div class="nav-tab-label">Importar</div>
+    </div>
+    <div class="nav-tab" id="nav-funcionarios" onclick="trocarTab('funcionarios')">
+      <div class="nav-tab-icon">👥</div>
+      <div class="nav-tab-label">Equipe</div>
+    </div>
+    <div class="nav-tab" id="nav-pagamentos" onclick="trocarTab('pagamentos')">
+      <div class="nav-tab-icon">💰</div>
+      <div class="nav-tab-label">Pagamento</div>
+    </div>
+  </nav>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SCREEN: DETALHE FUNCIONÁRIO
+═══════════════════════════════════════════ -->
+<div class="screen" id="s-detalhe">
+  <div class="det-header">
+    <div class="det-back" onclick="voltarMain()">‹</div>
+    <div>
+      <div class="det-name" id="det-nome">—</div>
+      <div class="det-sub" id="det-sub">—</div>
+    </div>
+  </div>
+  <div class="body" id="det-body"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SCREEN: CONFIGURAÇÕES
+═══════════════════════════════════════════ -->
+<div class="screen" id="s-config">
+  <div class="hdr">
+    <div class="hdr-btn" onclick="voltarMain()" style="margin-right:4px">‹</div>
+    <div class="hdr-info">
+      <div class="hdr-title">Configurações</div>
+      <div class="hdr-sub">Token e Funcionários</div>
+    </div>
+    <div class="hdr-btn" onclick="salvarConfig()">💾</div>
+  </div>
+  <div class="body">
+
+    <div class="card">
+      <div class="card-bar blue"></div>
+      <div class="card-inner">
+        <div class="card-title">☁️ GitHub Gist</div>
+        <div class="cfg-row">
+          <div class="cfg-label">GitHub Token (PAT)</div>
+          <input class="cfg-input" id="cfg-token" type="password" placeholder="ghp_xxxxxxxxxxxx">
+        </div>
+        <div class="cfg-row">
+          <div class="cfg-label">ID do Gist</div>
+          <input class="cfg-input" id="cfg-gist" placeholder="deixe vazio para criar novo">
+        </div>
+        <button class="btn btn-gold" onclick="salvarConfig()">💾 Salvar Configurações</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar gold"></div>
+      <div class="card-inner">
+        <div class="card-title">👥 Funcionários e Salários</div>
+        <div id="cfg-funcs-lista"></div>
+        <button class="btn btn-outline" style="margin-top:10px" onclick="addFuncionario()">+ Adicionar Funcionário</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar" style="background:var(--mid)"></div>
+      <div class="card-inner">
+        <div class="card-title">⏰ Jornada Padrão</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div class="cfg-row">
+            <div class="cfg-label">Entrada Seg-Sex</div>
+            <input class="cfg-input" id="cfg-entrada" type="time" value="07:00">
+          </div>
+          <div class="cfg-row">
+            <div class="cfg-label">Saída Seg-Sex</div>
+            <input class="cfg-input" id="cfg-saida" type="time" value="17:00">
+          </div>
+          <div class="cfg-row">
+            <div class="cfg-label">Entrada Sábado</div>
+            <input class="cfg-input" id="cfg-entrada-sab" type="time" value="07:00">
+          </div>
+          <div class="cfg-row">
+            <div class="cfg-label">Saída Sábado</div>
+            <input class="cfg-input" id="cfg-saida-sab" type="time" value="11:00">
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     MODAL: REGISTRAR PAGAMENTO
+═══════════════════════════════════════════ -->
+<div class="modal-bg" id="modal-pag">
+  <div class="modal">
+    <div class="modal-title" id="modal-pag-title">Registrar Pagamento</div>
+    <div class="cfg-row">
+      <div class="cfg-label">Tipo</div>
+      <select class="cfg-input" id="modal-pag-tipo">
+        <option value="total">Pagamento Total</option>
+        <option value="parcial">Pagamento Parcial</option>
+      </select>
+    </div>
+    <div class="cfg-row" id="modal-pag-valor-row">
+      <div class="cfg-label">Valor (R$)</div>
+      <input class="cfg-input" id="modal-pag-valor" type="number" step="0.01" placeholder="0,00">
+    </div>
+    <div class="cfg-row">
+      <div class="cfg-label">Motivo</div>
+      <input class="cfg-input" id="modal-pag-motivo" placeholder="ex: pagamento quinzena">
+    </div>
+    <div style="display:flex;gap:10px;margin-top:4px">
+      <button class="btn btn-outline btn-sm" style="flex:1" onclick="fecharModal()">Cancelar</button>
+      <button class="btn btn-green btn-sm" style="flex:1" onclick="confirmarPagamento()">✓ Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast">✓ OK</div>
+
+<script>
+// ══════════════════════════════════════════════
+// ESTADO GLOBAL
+// ══════════════════════════════════════════════
+let CFG = {
+  token: '',
+  gistId: '',
+  entradaSeqSex: '07:00',
+  saidaSegSex: '17:00',
+  entradaSab: '07:00',
+  saidaSab: '11:00',
+  funcionarios: [
+    { nome: 'hangel',   salario: 1500, tipo: 'mes',    jornada: 8, pin: '1111' },
+    { nome: 'fabricio', salario: 400,  tipo: 'semana', jornada: 8, pin: '1234' },
+    { nome: 'gibs',     salario: 1000, tipo: 'mes',    jornada: 8, pin: '2345' },
+    { nome: 'hugo',     salario: 1900, tipo: 'mes',    jornada: 8, pin: '3456' },
+    { nome: 'tiago',    salario: 400,  tipo: 'mes',    jornada: 4, pin: '4567' },
+  ]
+};
+
+let DADOS = {}; // { nome: { saldo_min, registros, pagamentos, ... } }
+let _pagFuncAtual = null;
+let _pagDadosAtuais = null;
+
+// ══════════════════════════════════════════════
+// PERSISTÊNCIA
+// ══════════════════════════════════════════════
+function salvarLocal() {
+  try { localStorage.setItem('hr_cfg', JSON.stringify(CFG)); } catch(e){}
+  try { localStorage.setItem('hr_dados', JSON.stringify(DADOS)); } catch(e){}
+}
+function carregarLocal() {
+  try {
+    const c = localStorage.getItem('hr_cfg');
+    if (c) CFG = { ...CFG, ...JSON.parse(c) };
+  } catch(e){}
+  try {
+    const d = localStorage.getItem('hr_dados');
+    if (d) DADOS = JSON.parse(d);
+  } catch(e){}
+}
+
+// ══════════════════════════════════════════════
+// NAVEGAÇÃO
+// ══════════════════════════════════════════════
+let tabAtual = 'importar';
+
+function trocarTab(tab) {
+  tabAtual = tab;
+  ['importar','funcionarios','pagamentos'].forEach(t => {
+    document.getElementById('tab-' + t).style.display = t === tab ? 'flex' : 'none';
+    document.getElementById('nav-' + t).classList.toggle('active', t === tab);
+  });
+  if (tab === 'funcionarios') renderFuncionarios();
+  if (tab === 'pagamentos') renderPagamentos();
+}
+
+function mostrarScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function voltarMain() { mostrarScreen('s-main'); }
+function abrirConfig() {
+  carregarCamposConfig();
+  mostrarScreen('s-config');
+}
+
+// ══════════════════════════════════════════════
+// PARSE DO XLS/XLSX
+// ══════════════════════════════════════════════
+function hm(s) {
+  if (!s) return -1;
+  const m = String(s).match(/(\d{1,2}):(\d{2})/);
+  if (!m) return -1;
+  return parseInt(m[1]) * 60 + parseInt(m[2]);
+}
+function fmtHM(mins) {
+  const a = Math.abs(mins);
+  return String(Math.floor(a/60)).padStart(2,'0') + ':' + String(a%60).padStart(2,'0');
+}
+function fmtSaldo(mins) { return (mins >= 0 ? '+' : '-') + fmtHM(mins); }
+function fmtBRL(v) {
+  return 'R$ ' + Math.abs(v).toFixed(2).replace('.',',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+}
+function normData(v) {
+  if (!v) return null;
+  if (v instanceof Date) return v.toISOString().slice(0,10);
+  // número serial do Excel
+  if (typeof v === 'number' && v > 40000) {
+    const d = new Date((v - 25569) * 86400 * 1000);
+    return d.toISOString().slice(0,10);
+  }
+  const s = String(v).trim();
+  // dd/mm/yyyy
+  let m = s.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  if (m) return `${m[3]}-${m[2]}-${m[1]}`;
+  // yyyy-mm-dd
+  m = s.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (m) return s;
+  return null;
+}
+function normTime(v) {
+  if (!v) return null;
+  if (v instanceof Date) return String(v.getHours()).padStart(2,'0') + ':' + String(v.getMinutes()).padStart(2,'0');
+  // número decimal Excel (fração do dia)
+  if (typeof v === 'number' && v < 1) {
+    const total = Math.round(v * 24 * 60);
+    return String(Math.floor(total/60)).padStart(2,'0') + ':' + String(total%60).padStart(2,'0');
+  }
+  const s = String(v).trim();
+  const m = s.match(/(\d{1,2}):(\d{2})/);
+  if (m) return m[1].padStart(2,'0') + ':' + m[2];
+  return null;
+}
+
+function parsearXLSX(ab, nomeArquivo) {
+  const wb = XLSX.read(ab, { type: 'array', cellDates: true });
+  
+  // Tenta cada aba
+  for (const sheetName of wb.SheetNames) {
+    const ws = wb.Sheets[sheetName];
+    const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: null, raw: false });
+    const flatTop = rows.slice(0,10).flat().map(c => String(c||'').toLowerCase());
+    
+    // Formato RelatórioAnormal
+    if (flatTop.some(c => c.includes('idusuário') || c.includes('idusuario') || c.includes('id usuário'))) {
+      const res = parseAnormal(rows);
+      if (res.length) return res;
+    }
+    // Formato RegistroPresença / Cartão
+    if (flatTop.some(c => c.includes('nome') || c.includes('cartão') || c.includes('cartao') || c.includes('registro'))) {
+      const res = parseRegistro(rows) || parseCartao(rows);
+      if (res && res.length) return res;
+    }
+  }
+  
+  // Fallback: tenta todas as abas
+  for (const sheetName of wb.SheetNames) {
+    const ws = wb.Sheets[sheetName];
+    const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: null, raw: false });
+    const res = parseGenerico(rows);
+    if (res && res.length) return res;
+  }
+  return [];
+}
+
+function parseAnormal(rows) {
+  const resultado = [];
+  let hdrIdx = -1;
+  let colMap = {};
+  
+  for (let i = 0; i < Math.min(rows.length, 15); i++) {
+    const flat = rows[i].map(c => String(c||'').toLowerCase());
+    if (flat.some(c => c.includes('idusu') || c.includes('id usu'))) {
+      hdrIdx = i;
+      flat.forEach((c,j) => {
+        if (c.includes('nome')) colMap.nome = j;
+        if (c.includes('data')) colMap.data = j;
+        if (c.includes('entrada') && c.includes('manh')) colMap.em = j;
+        if (c.includes('saída') && c.includes('manh') || c.includes('saida') && c.includes('manh')) colMap.sm = j;
+        if (c.includes('entrada') && c.includes('tard')) colMap.et = j;
+        if (c.includes('saída') && c.includes('tard') || c.includes('saida') && c.includes('tard')) colMap.st = j;
+        // fallback: coluna 1=nome, 3=data, 4=em, 5=sm, 6=et, 7=st
+        if (!colMap.nome && j===1) colMap.nome=1;
+        if (!colMap.data && j===3) colMap.data=3;
+        if (!colMap.em && j===4) colMap.em=4;
+        if (!colMap.sm && j===5) colMap.sm=5;
+        if (!colMap.et && j===6) colMap.et=6;
+        if (!colMap.st && j===7) colMap.st=7;
+      });
+      break;
+    }
+  }
+  if (hdrIdx < 0) return [];
+  
+  for (let i = hdrIdx + 2; i < rows.length; i++) {
+    const row = rows[i];
+    if (!row || !row[colMap.nome]) continue;
+    const nome = String(row[colMap.nome] || '').trim().toLowerCase();
+    const data = normData(row[colMap.data]);
+    if (!nome || !data) continue;
+    const horarios = [
+      normTime(row[colMap.em]),
+      normTime(row[colMap.sm]),
+      normTime(row[colMap.et]),
+      normTime(row[colMap.st])
+    ].filter(Boolean).sort();
+    if (horarios.length) resultado.push({ funcionario_raw: nome, data, horarios });
+  }
+  return resultado;
+}
+
+function parseRegistro(rows) {
+  const resultado = [];
+  let periodo = null;
+  
+  // Acha período
+  for (const row of rows.slice(0,6)) {
+    for (const c of row) {
+      const s = String(c||'');
+      const m = s.match(/(\d{2})\/(\d{2})\/(\d{4})/);
+      if (m) { periodo = { ano: parseInt(m[3]), mes: parseInt(m[2]) }; break; }
+    }
+    if (periodo) break;
+  }
+  
+  let i = 0;
+  while (i < rows.length) {
+    const row = rows[i];
+    const flat = row.map(c => String(c||'').toLowerCase()).join(' ');
+    if (flat.includes('idusuário:') || flat.includes('idusuario:') || flat.includes('nome')) {
+      let nome = null;
+      for (let j = 0; j < row.length - 1; j++) {
+        if (String(row[j]||'').toLowerCase().includes('nome') && row[j+1]) {
+          nome = String(row[j+1]).trim().toLowerCase();
+          break;
+        }
+      }
+      if (nome && i + 2 < rows.length) {
+        const diasRow = rows[i+1];
+        const batRow = rows[i+2];
+        diasRow.forEach((dv, ci) => {
+          const s = String(dv||'').trim();
+          if (!s || !/^\d+$/.test(s)) return;
+          const dia = parseInt(s);
+          const cel = batRow[ci];
+          if (!cel) return;
+          const horarios = String(cel).split('\n').map(h => normTime(h.trim())).filter(Boolean).sort();
+          if (horarios.length && periodo) {
+            try {
+              const ds = new Date(periodo.ano, periodo.mes-1, dia).toISOString().slice(0,10);
+              resultado.push({ funcionario_raw: nome, data: ds, horarios });
+            } catch(e) {}
+          }
+        });
+        i += 3;
+        continue;
+      }
+    }
+    i++;
+  }
+  return resultado;
+}
+
+function parseCartao(rows) {
+  const resultado = [];
+  // Estrutura: blocos de ~15 colunas, cabeçalho com Nome
+  const funcMap = {};
+  let periodo = null;
+
+  for (const row of rows.slice(0,6)) {
+    for (const c of row) {
+      const s = String(c||'');
+      const m = s.match(/(\d{2})\/(\d{2})\/(\d{4})/);
+      if (m) { periodo = { ano: parseInt(m[3]), mes: parseInt(m[2]) }; break; }
+    }
+    if (periodo) break;
+  }
+
+  for (let i = 0; i < Math.min(rows.length,15); i++) {
+    rows[i].forEach((c, ci) => {
+      if (String(c||'').trim() === 'Nome' && rows[i][ci+1]) {
+        const bloco = Math.floor(ci/15)*15;
+        funcMap[bloco] = String(rows[i][ci+1]).trim().toLowerCase();
+      }
+    });
+  }
+
+  if (!Object.keys(funcMap).length) return [];
+
+  const HORA_OFFSETS = [1,3,6,8,10,12];
+  let dataStart = null;
+  for (let i = 0; i < rows.length; i++) {
+    if (rows[i].some(c => String(c||'').match(/^\d{2}\s+\S/))) { dataStart = i; break; }
+  }
+  if (dataStart === null) return [];
+
+  for (let i = dataStart; i < rows.length; i++) {
+    const row = rows[i];
+    for (const [bloco, nome] of Object.entries(funcMap)) {
+      const b = parseInt(bloco);
+      if (b >= row.length) continue;
+      const dv = row[b];
+      if (!dv) continue;
+      // data no formato '01 4ª'
+      let ds = null;
+      const dm = String(dv).match(/^(\d{1,2})\s/);
+      if (dm && periodo) {
+        try { ds = new Date(periodo.ano, periodo.mes-1, parseInt(dm[1])).toISOString().slice(0,10); } catch(e){}
+      }
+      if (!ds) ds = normData(dv);
+      if (!ds) continue;
+      const horarios = HORA_OFFSETS.map(off => normTime(row[b+off])).filter(Boolean).sort();
+      if (horarios.length) resultado.push({ funcionario_raw: nome, data: ds, horarios });
+    }
+  }
+  return resultado;
+}
+
+function parseGenerico(rows) {
+  const resultado = [];
+  const bucket = {};
+  rows.forEach(row => {
+    const datas = row.map(normData).filter(Boolean);
+    const horas = row.map(normTime).filter(Boolean);
+    let nome = null;
+    row.forEach(c => {
+      if (typeof c === 'string' && c.match(/^[A-Za-zÀ-ÿ\s]{3,}$/) && c.length < 30) nome = c.trim().toLowerCase();
+    });
+    if (!nome) nome = 'funcionario';
+    if (datas.length && horas.length) {
+      const key = `${nome}|${datas[0]}`;
+      if (!bucket[key]) bucket[key] = { funcionario_raw: nome, data: datas[0], horarios: new Set() };
+      horas.forEach(h => bucket[key].horarios.add(h));
+    }
+  });
+  return Object.values(bucket).map(r => ({ ...r, horarios: [...r.horarios].sort() }));
+}
+
+// ══════════════════════════════════════════════
+// CÁLCULO DE HORAS
+// ══════════════════════════════════════════════
+function calcDia(data, horarios, jornadaH) {
+  const jornadaMin = jornadaH * 60;
+  const hrs = horarios.map(hm).filter(v => v >= 0);
+  const qtd = hrs.length;
+  let trab = 0;
+  if (qtd >= 2) {
+    if (qtd % 2 === 0) {
+      for (let i = 0; i < qtd; i += 2) trab += Math.max(0, hrs[i+1] - hrs[i]);
+    } else {
+      for (let i = 0; i < qtd-1; i += 2) trab += Math.max(0, hrs[i+1] - hrs[i]);
+    }
+  }
+  const saldo = trab - jornadaMin;
+  const extras = Math.max(0, saldo);
+  const faltas = Math.max(0, -saldo);
+  const status = faltas > 0 ? 'falta' : extras > 0 ? 'extra' : 'ok';
+  return {
+    data, horarios, qtd,
+    trabalhados_min: trab, jornada_min: jornadaMin,
+    extras_min: extras, faltas_min: faltas, saldo_min: saldo,
+    trabalhados_fmt: fmtHM(trab), jornada_fmt: fmtHM(jornadaMin),
+    extras_fmt: fmtHM(extras), faltas_fmt: fmtHM(faltas),
+    saldo_fmt: fmtSaldo(saldo), status
+  };
+}
+
+function matchFuncionario(raw) {
+  const rl = raw.toLowerCase().trim();
+  return CFG.funcionarios.find(f => {
+    const fn = f.nome.toLowerCase();
+    return fn === rl || rl.includes(fn) || fn.includes(rl);
+  }) || null;
+}
+
+function calcularTudo(registros) {
+  const dados = {};
+  const now = new Date().toLocaleString('pt-BR');
+
+  // Inicializa todos os funcionários
+  CFG.funcionarios.forEach(f => {
+    dados[f.nome] = {
+      nome: f.nome, salario: f.salario, tipo: f.tipo, jornada: f.jornada, pin: f.pin,
+      saldo_min: 0, registros: [], pagamentos: []
+    };
+  });
+
+  // Agrupa por funcionário
+  registros.forEach(reg => {
+    const f = matchFuncionario(reg.funcionario_raw);
+    if (!f) return;
+    const d = dados[f.nome];
+    const calc = calcDia(reg.data, reg.horarios, f.jornada);
+    d.registros.push(calc);
+    d.saldo_min += calc.extras_min - calc.faltas_min;
+  });
+
+  // Recupera pagamentos salvos
+  CFG.funcionarios.forEach(f => {
+    if (DADOS[f.nome] && DADOS[f.nome].pagamentos) {
+      dados[f.nome].pagamentos = DADOS[f.nome].pagamentos || [];
+    }
+  });
+
+  // Calcula financeiro
+  Object.values(dados).forEach(d => {
+    const mult = 1.5;
+    let vh = 0;
+    if (d.tipo === 'hora') vh = d.salario;
+    else if (d.tipo === 'semana') vh = d.salario / 44;
+    else vh = d.salario / 220;
+    const vhe = vh * mult;
+    const valorBruto = (d.saldo_min / 60) * vhe;
+    const totalPago = (d.pagamentos || []).reduce((s, p) => s + p.valor, 0);
+    const aPagar = Math.max(0, valorBruto - totalPago);
+    d.valor_hora = vh;
+    d.valor_hora_ext = vhe;
+    d.valor_hora_fmt = fmtBRL(vh);
+    d.valor_hora_ext_fmt = fmtBRL(vhe);
+    d.valor_bruto = valorBruto;
+    d.valor_fmt = fmtBRL(valorBruto);
+    d.total_pago = totalPago;
+    d.total_pago_fmt = fmtBRL(totalPago);
+    d.a_pagar = aPagar;
+    d.a_pagar_fmt = fmtBRL(aPagar);
+    d.multiplicador = mult;
+    d.saldo_horas = Math.floor(Math.abs(d.saldo_min) / 60);
+    d.saldo_mins = Math.abs(d.saldo_min) % 60;
+    d.saldo_positivo = d.saldo_min >= 0;
+    d.saldo_fmt = fmtSaldo(d.saldo_min);
+    d.atualizado_em = now;
+  });
+
+  return dados;
+}
+
+// ══════════════════════════════════════════════
+// PROCESSAR ARQUIVO
+// ══════════════════════════════════════════════
+async function processarArquivo(input) {
+  const file = input.files[0];
+  if (!file) return;
+  
+  document.getElementById('imp-loading').style.display = 'flex';
+  document.getElementById('imp-resultado').style.display = 'none';
+  
+  try {
+    const ab = await file.arrayBuffer();
+    const registros = parsearXLSX(new Uint8Array(ab), file.name);
+    
+    if (!registros.length) {
+      toast('Nenhum dado reconhecido no arquivo', 'err');
+      document.getElementById('imp-loading').style.display = 'none';
+      return;
+    }
+    
+    DADOS = calcularTudo(registros);
+    salvarLocal();
+    
+    // Stats
+    const funcsComDados = Object.values(DADOS).filter(d => d.registros.length > 0).length;
+    const totalRegs = registros.length;
+    const totalExtrasMin = Object.values(DADOS).reduce((s,d) => s + Math.max(0,d.saldo_min), 0);
+    const totalAPagar = Object.values(DADOS).reduce((s,d) => s + d.a_pagar, 0);
+    
+    document.getElementById('imp-nome-arquivo').textContent = file.name;
+    document.getElementById('imp-detalhe-arquivo').textContent = `${registros.length} registros lidos · ${funcsComDados} funcionários`;
+    document.getElementById('stat-funcs').textContent = funcsComDados;
+    document.getElementById('stat-regs').textContent = totalRegs;
+    document.getElementById('stat-extras').textContent = fmtHM(totalExtrasMin) + 'h';
+    document.getElementById('stat-apagar').textContent = fmtBRL(totalAPagar);
+    
+    document.getElementById('imp-loading').style.display = 'none';
+    document.getElementById('imp-resultado').style.display = 'flex';
+    document.getElementById('imp-resultado').style.flexDirection = 'column';
+    document.getElementById('imp-resultado').style.gap = '14px';
+    
+    toast(`${registros.length} registros lidos com sucesso!`, 'ok');
+    
+  } catch(e) {
+    document.getElementById('imp-loading').style.display = 'none';
+    toast('Erro ao ler arquivo: ' + e.message, 'err');
+    console.error(e);
+  }
+  input.value = '';
+}
+
+// ══════════════════════════════════════════════
+// SINCRONIZAR GIST
+// ══════════════════════════════════════════════
+async function sincronizarGist() {
+  if (!CFG.token) {
+    toast('Configure o Token do GitHub primeiro!', 'err');
+    abrirConfig();
+    return;
+  }
+  if (!Object.keys(DADOS).length) {
+    toast('Importe um relatório primeiro!', 'err');
+    return;
+  }
+
+  const btn = document.getElementById('btnSincronizar');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spin" style="width:18px;height:18px;border-top-color:#09090b"></div> Sincronizando...';
+
+  try {
+    // Monta payload compatível com o app dos funcionários
+    const now = new Date().toLocaleString('pt-BR');
+    const payload = {
+      versao: 1,
+      atualizado_em: now,
+      funcionarios: Object.values(DADOS).map(d => ({
+        id: CFG.funcionarios.findIndex(f => f.nome === d.nome) + 1,
+        nome: d.nome,
+        saldo_min: d.saldo_min,
+        saldo_fmt: d.saldo_fmt,
+        saldo_horas: d.saldo_horas,
+        saldo_mins: d.saldo_mins,
+        saldo_positivo: d.saldo_positivo,
+        atualizado_em: now,
+        multiplicador: d.multiplicador,
+        valor_hora: d.valor_hora,
+        valor_hora_ext: d.valor_hora_ext,
+        valor_hora_fmt: d.valor_hora_fmt,
+        valor_hora_ext_fmt: d.valor_hora_ext_fmt,
+        valor_bruto: d.valor_bruto,
+        valor_fmt: d.valor_fmt,
+        a_pagar: d.a_pagar,
+        a_pagar_fmt: d.a_pagar_fmt,
+        total_pago: d.total_pago,
+        total_pago_fmt: d.total_pago_fmt,
+        historico: (d.pagamentos || []).map(p => ({
+          tipo: 'debito', minutos: 0,
+          valor_fmt: fmtBRL(p.valor),
+          descricao: p.motivo || 'Pagamento',
+          data: p.data
+        })),
+        registros: d.registros.map(r => ({
+          data: r.data,
+          horarios: r.horarios,
+          trabalhados_fmt: r.trabalhados_fmt,
+          trabalhados_min: r.trabalhados_min,
+          jornada_fmt: r.jornada_fmt,
+          extras_min: r.extras_min,
+          extras_fmt: r.extras_fmt,
+          faltas_min: r.faltas_min,
+          faltas_fmt: r.faltas_fmt,
+          saldo_min: r.saldo_min,
+          saldo_fmt: r.saldo_fmt,
+          status: r.status,
+          valor_extras: parseFloat(((r.extras_min/60) * d.valor_hora_ext).toFixed(2)),
+          valor_extras_fmt: fmtBRL((r.extras_min/60) * d.valor_hora_ext),
+          multiplicador: d.multiplicador
+        })),
+        notificacoes: []
+      }))
+    };
+
+    const filesData = { 'data.json': { content: JSON.stringify(payload, null, 2) } };
+    const headers = {
+      'Authorization': `token ${CFG.token}`,
+      'Accept': 'application/vnd.github+json',
+      'Content-Type': 'application/json'
+    };
+
+    let resp;
+    if (CFG.gistId) {
+      resp = await fetch(`https://api.github.com/gists/${CFG.gistId}`, {
+        method: 'PATCH',
+        headers,
+        body: JSON.stringify({ files: filesData })
+      });
+    } else {
+      resp = await fetch('https://api.github.com/gists', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          description: 'HR Mármores — Dados dos Funcionários',
+          public: true,
+          files: filesData
+        })
+      });
+      if (resp.status === 201) {
+        const data = await resp.json();
+        CFG.gistId = data.id;
+        salvarLocal();
+        document.getElementById('cfg-gist').value = CFG.gistId;
+        toast(`Gist criado! ID: ${CFG.gistId}`, 'ok');
+        btn.disabled = false;
+        btn.innerHTML = '<span>☁️</span> Publicar Resultado no App dos Funcionários';
+        return;
+      }
+    }
+
+    if (resp.ok) {
+      const n = payload.funcionarios.length;
+      toast(`✓ Publicado! ${n} funcionários atualizados`, 'ok');
+      document.getElementById('hdr-sub').textContent = 'Publicado em ' + new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+    } else {
+      const err = await resp.text();
+      toast('Erro ' + resp.status + ': verifique o token', 'err');
+      console.error(err);
+    }
+  } catch(e) {
+    toast('Erro de conexão: ' + e.message, 'err');
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = '<span>☁️</span> Publicar Resultado no App dos Funcionários';
+}
+
+// ══════════════════════════════════════════════
+// LER REGISTROS DO GIST (dados_ponto.json)
+// ══════════════════════════════════════════════
+async function lerRegistrosGist() {
+  if (!CFG.token || !CFG.gistId) {
+    toast('Configure o Token e ID do Gist primeiro!', 'err');
+    abrirConfig();
+    return;
+  }
+
+  const btn = document.getElementById('btnLerGist');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spin" style="width:16px;height:16px;border-top-color:#09090b;display:inline-block"></div> Lendo...';
+
+  try {
+    const resp = await fetch(`https://api.github.com/gists/${CFG.gistId}`, {
+      headers: {
+        'Authorization': `token ${CFG.token}`,
+        'Accept': 'application/vnd.github+json'
+      }
+    });
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const gist = await resp.json();
+
+    const arquivo = gist.files['dados_ponto.json'];
+    if (!arquivo || !arquivo.content) {
+      toast('Arquivo dados_ponto.json não encontrado no Gist', 'err');
+      btn.disabled = false;
+      btn.innerHTML = '<span>📥</span> Importar Registros do App (Gist)';
+      return;
+    }
+
+    const dadosPonto = JSON.parse(arquivo.content);
+    // Converte formato { "NOME::YYYY-MM-DD": [{tipo, hora, obs}] }
+    // para o formato interno { funcionario_raw, data, horarios }
+    const registros = [];
+    for (const [chave, regs] of Object.entries(dadosPonto)) {
+      const [nome, data] = chave.split('::');
+      if (!nome || !data) continue;
+      // Extrai horários: entrada, almoco-inicio, almoco-fim, saida
+      const horarios = regs
+        .map(r => r.hora ? r.hora.slice(0,5) : null)
+        .filter(Boolean)
+        .sort();
+      if (horarios.length) {
+        registros.push({ funcionario_raw: nome, data, horarios });
+      }
+    }
+
+    if (!registros.length) {
+      toast('Nenhum registro encontrado no dados_ponto.json', 'err');
+      btn.disabled = false;
+      btn.innerHTML = '<span>📥</span> Importar Registros do App (Gist)';
+      return;
+    }
+
+    DADOS = calcularTudo(registros);
+    salvarLocal();
+
+    const funcsComDados = Object.values(DADOS).filter(d => d.registros.length > 0).length;
+    const totalExtrasMin = Object.values(DADOS).reduce((s,d) => s + Math.max(0,d.saldo_min), 0);
+    const totalAPagar = Object.values(DADOS).reduce((s,d) => s + d.a_pagar, 0);
+
+    document.getElementById('imp-nome-arquivo').textContent = 'dados_ponto.json (Gist)';
+    document.getElementById('imp-detalhe-arquivo').textContent = `${registros.length} registros · ${funcsComDados} funcionários`;
+    document.getElementById('stat-funcs').textContent = funcsComDados;
+    document.getElementById('stat-regs').textContent = registros.length;
+    document.getElementById('stat-extras').textContent = fmtHM(totalExtrasMin) + 'h';
+    document.getElementById('stat-apagar').textContent = fmtBRL(totalAPagar);
+
+    document.getElementById('imp-resultado').style.display = 'flex';
+    document.getElementById('imp-resultado').style.flexDirection = 'column';
+    document.getElementById('imp-resultado').style.gap = '14px';
+    document.getElementById('hdr-sub').textContent = `${funcsComDados} func. · ${fmtBRL(totalAPagar)} pendente`;
+
+    toast(`✓ ${registros.length} registros importados do Gist!`, 'ok');
+  } catch(e) {
+    toast('Erro ao ler Gist: ' + e.message, 'err');
+    console.error(e);
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = '<span>📥</span> Importar Registros do App (Gist)';
+}
+
+// ══════════════════════════════════════════════
+// RENDER FUNCIONÁRIOS
+// ══════════════════════════════════════════════
+function renderFuncionarios() {
+  const el = document.getElementById('lista-funcionarios');
+  const funcs = Object.values(DADOS);
+  if (!funcs.length || !funcs.some(f => f.registros.length)) {
+    el.innerHTML = `<div class="empty"><div class="empty-icon">👥</div><div class="empty-title">Nenhum dado ainda</div><div class="empty-sub">Importe um relatório primeiro</div></div>`;
+    return;
+  }
+  el.innerHTML = funcs.sort((a,b) => b.saldo_min - a.saldo_min).map(d => {
+    const cls = d.saldo_min > 0 ? 'pos' : d.saldo_min < 0 ? 'neg' : 'zer';
+    return `<div class="func-row" onclick="abrirDetalhe('${d.nome}')">
+      <div class="func-avatar">${d.nome[0].toUpperCase()}</div>
+      <div class="func-info">
+        <div class="func-nome">${d.nome.charAt(0).toUpperCase()+d.nome.slice(1)}</div>
+        <div class="func-detalhe">${d.registros.length} dias · ${d.valor_hora_fmt}/h</div>
+      </div>
+      <div class="func-saldo">
+        <div class="func-saldo-val ${cls}">${d.saldo_fmt}</div>
+        <div class="func-saldo-sub">${d.a_pagar_fmt}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function verFuncionarios() { trocarTab('funcionarios'); }
+
+// ══════════════════════════════════════════════
+// DETALHE FUNCIONÁRIO
+// ══════════════════════════════════════════════
+function abrirDetalhe(nome) {
+  const d = DADOS[nome];
+  if (!d) return;
+  
+  document.getElementById('det-nome').textContent = d.nome.charAt(0).toUpperCase() + d.nome.slice(1);
+  document.getElementById('det-sub').textContent = `${fmtHM(Math.abs(d.saldo_min))}h ${d.saldo_min >= 0 ? 'extras' : 'de falta'} · ${d.a_pagar_fmt} a receber`;
+  
+  const corpo = document.getElementById('det-body');
+  const clsSaldo = d.saldo_min > 0 ? 'pos' : d.saldo_min < 0 ? 'neg' : 'zer';
+  
+  // Cards de resumo
+  let html = `
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-label">Saldo</div>
+        <div class="stat-val ${clsSaldo}">${d.saldo_fmt}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">A Receber</div>
+        <div class="stat-val gold">${d.a_pagar_fmt}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Hora extra</div>
+        <div class="stat-val green">${d.valor_hora_ext_fmt}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Já Pago</div>
+        <div class="stat-val blue">${d.total_pago_fmt}</div>
+      </div>
+    </div>
+
+    <button class="btn btn-green" onclick="abrirPagamento('${nome}')">
+      💵 Registrar Pagamento
+    </button>
+
+    <div class="card">
+      <div class="card-bar green"></div>
+      <div class="card-inner">
+        <div class="card-title">📅 Registros Diários</div>`;
+  
+  if (!d.registros.length) {
+    html += `<div class="empty" style="padding:24px 0"><div class="empty-sub">Nenhum registro ainda</div></div>`;
+  } else {
+    const regs = [...d.registros].sort((a,b) => b.data.localeCompare(a.data));
+    html += regs.map(r => {
+      const cls = r.saldo_min > 0 ? 'pos' : r.saldo_min < 0 ? 'neg' : 'zer';
+      const dotCls = r.status;
+      const dtFmt = r.data.split('-').reverse().join('/');
+      const dt = new Date(r.data + 'T12:00:00');
+      const dias = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+      return `<div class="dia-row">
+        <div class="dia-dot ${dotCls}"></div>
+        <div class="dia-info">
+          <div class="dia-data">${dtFmt} · ${dias[dt.getDay()]}</div>
+          <div class="dia-hrs">${r.horarios.join('  →  ')} · ${r.trabalhados_fmt}h</div>
+        </div>
+        <div class="dia-saldo ${cls}">${r.saldo_fmt}</div>
+      </div>`;
+    }).join('');
+  }
+  html += `</div></div>`;
+
+  // Histórico de pagamentos
+  html += `<div class="card">
+    <div class="card-bar" style="background:var(--green)"></div>
+    <div class="card-inner">
+      <div class="card-title">💳 Histórico de Pagamentos</div>`;
+  if (!d.pagamentos || !d.pagamentos.length) {
+    html += `<div class="empty" style="padding:20px 0"><div class="empty-sub">Nenhum pagamento registrado</div></div>`;
+  } else {
+    html += d.pagamentos.map(p => `
+      <div class="pag-row">
+        <div class="pag-icon">💵</div>
+        <div class="pag-info">
+          <div class="pag-desc">${p.motivo || 'Pagamento'}</div>
+          <div class="pag-data">${p.data}</div>
+        </div>
+        <div class="pag-val">${fmtBRL(p.valor)}</div>
+      </div>`).join('');
+  }
+  html += `</div></div>`;
+  
+  corpo.innerHTML = html;
+  mostrarScreen('s-detalhe');
+}
+
+// ══════════════════════════════════════════════
+// PAGAMENTOS
+// ══════════════════════════════════════════════
+function renderPagamentos() {
+  const el = document.getElementById('lista-pagamentos');
+  const funcs = Object.values(DADOS).filter(d => d.a_pagar > 0);
+  if (!funcs.length) {
+    el.innerHTML = `<div class="empty"><div class="empty-icon">✅</div><div class="empty-title">Tudo em dia!</div><div class="empty-sub">Nenhum pagamento pendente</div></div>`;
+    return;
+  }
+  const total = funcs.reduce((s,d) => s + d.a_pagar, 0);
+  el.innerHTML = `
+    <div style="background:var(--bg4);border-radius:12px;padding:16px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center">
+      <div style="font-size:12px;color:var(--mid);text-transform:uppercase;letter-spacing:1px">Total a Pagar</div>
+      <div style="font-size:22px;font-weight:700;color:var(--gold)">${fmtBRL(total)}</div>
+    </div>` +
+    funcs.sort((a,b) => b.a_pagar - a.a_pagar).map(d => `
+    <div class="func-row" onclick="abrirDetalhe('${d.nome}')">
+      <div class="func-avatar">${d.nome[0].toUpperCase()}</div>
+      <div class="func-info">
+        <div class="func-nome">${d.nome.charAt(0).toUpperCase()+d.nome.slice(1)}</div>
+        <div class="func-detalhe">${fmtHM(d.saldo_min)}h extras · ${d.valor_hora_ext_fmt}/h</div>
+      </div>
+      <div class="func-saldo">
+        <div class="func-saldo-val pos">${d.a_pagar_fmt}</div>
+        <div class="func-saldo-sub">a pagar</div>
+      </div>
+    </div>`).join('');
+}
+
+function abrirPagamento(nome) {
+  _pagFuncAtual = nome;
+  _pagDadosAtuais = DADOS[nome];
+  document.getElementById('modal-pag-title').textContent = `Pagar ${nome.charAt(0).toUpperCase()+nome.slice(1)}`;
+  document.getElementById('modal-pag-valor').value = _pagDadosAtuais.a_pagar.toFixed(2);
+  document.getElementById('modal-pag-motivo').value = '';
+  document.getElementById('modal-pag').classList.add('open');
+  // mostra/esconde campo valor baseado no tipo
+  document.getElementById('modal-pag-tipo').onchange = function() {
+    document.getElementById('modal-pag-valor-row').style.display = this.value === 'parcial' ? 'flex' : 'none';
+  };
+  document.getElementById('modal-pag-valor-row').style.display = 'none';
+}
+
+function fecharModal() {
+  document.getElementById('modal-pag').classList.remove('open');
+}
+
+function confirmarPagamento() {
+  if (!_pagFuncAtual) return;
+  const tipo = document.getElementById('modal-pag-tipo').value;
+  let valor = tipo === 'total'
+    ? _pagDadosAtuais.a_pagar
+    : parseFloat(document.getElementById('modal-pag-valor').value);
+  if (!valor || valor <= 0) { toast('Informe um valor válido', 'err'); return; }
+  const motivo = document.getElementById('modal-pag-motivo').value || (tipo === 'total' ? 'Pagamento total' : 'Pagamento parcial');
+  const data = new Date().toLocaleDateString('pt-BR');
+  
+  if (!DADOS[_pagFuncAtual].pagamentos) DADOS[_pagFuncAtual].pagamentos = [];
+  DADOS[_pagFuncAtual].pagamentos.push({ valor, motivo, data, tipo });
+  
+  // Recalcula saldo financeiro
+  const d = DADOS[_pagFuncAtual];
+  const totalPago = d.pagamentos.reduce((s,p) => s + p.valor, 0);
+  d.total_pago = totalPago;
+  d.total_pago_fmt = fmtBRL(totalPago);
+  d.a_pagar = Math.max(0, d.valor_bruto - totalPago);
+  d.a_pagar_fmt = fmtBRL(d.a_pagar);
+  
+  salvarLocal();
+  fecharModal();
+  toast(`Pagamento de ${fmtBRL(valor)} registrado!`, 'ok');
+  abrirDetalhe(_pagFuncAtual);
+}
+
+// ══════════════════════════════════════════════
+// CONFIGURAÇÕES
+// ══════════════════════════════════════════════
+function carregarCamposConfig() {
+  document.getElementById('cfg-token').value = CFG.token;
+  document.getElementById('cfg-gist').value = CFG.gistId;
+  document.getElementById('cfg-entrada').value = CFG.entradaSeqSex || '07:00';
+  document.getElementById('cfg-saida').value = CFG.saidaSegSex || '17:00';
+  document.getElementById('cfg-entrada-sab').value = CFG.entradaSab || '07:00';
+  document.getElementById('cfg-saida-sab').value = CFG.saidaSab || '11:00';
+  renderCfgFuncs();
+}
+
+function salvarConfig() {
+  CFG.token = document.getElementById('cfg-token').value.trim();
+  CFG.gistId = document.getElementById('cfg-gist').value.trim();
+  CFG.entradaSeqSex = document.getElementById('cfg-entrada').value;
+  CFG.saidaSegSex = document.getElementById('cfg-saida').value;
+  CFG.entradaSab = document.getElementById('cfg-entrada-sab').value;
+  CFG.saidaSab = document.getElementById('cfg-saida-sab').value;
+  // Salva funcionários dos campos
+  const lista = document.querySelectorAll('.cfg-func-item');
+  CFG.funcionarios = [];
+  lista.forEach(item => {
+    const nome = item.querySelector('.f-nome').value.trim().toLowerCase();
+    const sal = parseFloat(item.querySelector('.f-sal').value) || 0;
+    const tipo = item.querySelector('.f-tipo').value;
+    const jorn = parseFloat(item.querySelector('.f-jorn').value) || 8;
+    const pin = item.querySelector('.f-pin').value.trim();
+    if (nome) CFG.funcionarios.push({ nome, salario: sal, tipo, jornada: jorn, pin });
+  });
+  salvarLocal();
+  toast('Configurações salvas!', 'ok');
+  setTimeout(voltarMain, 800);
+}
+
+function renderCfgFuncs() {
+  const el = document.getElementById('cfg-funcs-lista');
+  el.innerHTML = CFG.funcionarios.map((f, i) => `
+    <div class="cfg-func-item" style="background:var(--bg4);border-radius:12px;padding:12px;margin-bottom:10px;border:1px solid var(--border)">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <span style="font-size:13px;font-weight:600;color:var(--gold)">${f.nome.charAt(0).toUpperCase()+f.nome.slice(1)}</span>
+        <span style="font-size:18px;cursor:pointer;color:var(--red)" onclick="removeFuncionario(${i})">×</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div class="cfg-row" style="margin:0">
+          <div class="cfg-label">Nome</div>
+          <input class="cfg-input f-nome" value="${f.nome}" style="padding:8px 10px;font-size:13px">
+        </div>
+        <div class="cfg-row" style="margin:0">
+          <div class="cfg-label">Salário R$</div>
+          <input class="cfg-input f-sal" type="number" value="${f.salario}" style="padding:8px 10px;font-size:13px">
+        </div>
+        <div class="cfg-row" style="margin:0">
+          <div class="cfg-label">Tipo</div>
+          <select class="cfg-input f-tipo" style="padding:8px 10px;font-size:13px">
+            <option value="mes" ${f.tipo==='mes'?'selected':''}>Mensal</option>
+            <option value="semana" ${f.tipo==='semana'?'selected':''}>Semanal</option>
+            <option value="hora" ${f.tipo==='hora'?'selected':''}>Por hora</option>
+          </select>
+        </div>
+        <div class="cfg-row" style="margin:0">
+          <div class="cfg-label">Jornada h/dia</div>
+          <input class="cfg-input f-jorn" type="number" value="${f.jornada}" style="padding:8px 10px;font-size:13px">
+        </div>
+        <div class="cfg-row" style="margin:0;grid-column:span 2">
+          <div class="cfg-label">PIN do funcionário</div>
+          <input class="cfg-input f-pin" value="${f.pin||''}" placeholder="4 dígitos" style="padding:8px 10px;font-size:13px">
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function addFuncionario() {
+  CFG.funcionarios.push({ nome: 'novo', salario: 0, tipo: 'mes', jornada: 8, pin: '' });
+  renderCfgFuncs();
+}
+
+function removeFuncionario(i) {
+  CFG.funcionarios.splice(i, 1);
+  renderCfgFuncs();
+}
+
+// ══════════════════════════════════════════════
+// TOAST
+// ══════════════════════════════════════════════
+let _toastTimer = null;
+function toast(msg, tipo='ok') {
+  const el = document.getElementById('toast');
+  el.textContent = tipo === 'ok' ? '✓ ' + msg : '✕ ' + msg;
+  el.className = 'show ' + tipo;
+  if (_toastTimer) clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+// ══════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════
+carregarLocal();
+
+// Drag and drop
+const zone = document.getElementById('uploadZone');
+zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag'); });
+zone.addEventListener('dragleave', () => zone.classList.remove('drag'));
+zone.addEventListener('drop', e => {
+  e.preventDefault();
+  zone.classList.remove('drag');
+  const file = e.dataTransfer.files[0];
+  if (file) {
+    const fakeInput = { files: [file] };
+    processarArquivo(fakeInput);
+  }
+});
+
+// Fechar modal ao clicar fora
+document.getElementById('modal-pag').addEventListener('click', function(e) {
+  if (e.target === this) fecharModal();
+});
+
+// Se já tem dados salvos, mostra resumo
+if (Object.keys(DADOS).length) {
+  const total = Object.values(DADOS).reduce((s,d) => s + d.a_pagar, 0);
+  document.getElementById('hdr-sub').textContent = `${Object.keys(DADOS).length} func. · ${fmtBRL(total)} pendente`;
+}
+</script>
+</body>
+</html>
