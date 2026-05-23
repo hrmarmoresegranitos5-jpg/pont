@@ -2,8 +2,8 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>HR Mármores — Meu Saldo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>HR Mármores — Ponto</title>
   <link rel="manifest" href="manifest.json" />
   <meta name="theme-color" content="#09090b" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -25,6 +25,7 @@
       --green:   #4caf7d;
       --green2:  #6dd49a;
       --red:     #d05060;
+      --blue:    #4a9eff;
       --safe-top: env(safe-area-inset-top, 0px);
       --safe-bot: env(safe-area-inset-bottom, 0px);
     }
@@ -33,128 +34,182 @@
       height: 100%;
       background: var(--bg);
       color: var(--cream);
-      font-family: 'Segoe UI', system-ui, sans-serif;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
       -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
     }
 
-    /* ── TELA DE LOGIN ── */
-    #tela-login {
+    /* ══════════════════════════════════
+       TELA: SELECIONAR FUNCIONÁRIO
+    ══════════════════════════════════ */
+    #tela-selecao {
       min-height: 100dvh;
       display: flex;
       flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-      gap: 32px;
     }
-    #tela-login.oculta { display: none; }
+    #tela-selecao.oculta { display: none; }
 
-    .logo-wrap {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 12px;
+    .sel-header {
+      padding: calc(20px + var(--safe-top)) 20px 20px;
+      background: linear-gradient(180deg, var(--bg2) 0%, var(--bg) 100%);
+      text-align: center;
     }
-    .logo-icone {
-      width: 72px; height: 72px;
+    .sel-logo {
+      width: 56px; height: 56px;
       background: var(--gold);
-      border-radius: 20px;
+      border-radius: 16px;
       display: flex; align-items: center; justify-content: center;
-      font-size: 32px;
+      font-size: 26px;
+      margin: 0 auto 14px;
+      box-shadow: 0 4px 24px rgba(200,160,85,.3);
     }
-    .logo-nome {
-      font-size: 1.4rem;
+    .sel-titulo {
+      font-size: 1.3rem;
       font-weight: 800;
-      letter-spacing: .02em;
+      letter-spacing: -.01em;
     }
-    .logo-nome span { color: var(--gold); }
-    .logo-sub {
+    .sel-titulo span { color: var(--gold); }
+    .sel-sub {
       font-size: .82rem;
       color: var(--mid);
+      margin-top: 4px;
     }
 
-    .login-box {
-      width: 100%;
-      max-width: 360px;
-      background: var(--bg3);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 28px 24px;
+    .sel-corpo {
+      flex: 1;
+      padding: 8px 16px calc(24px + var(--safe-bot));
       display: flex;
       flex-direction: column;
-      gap: 14px;
-    }
-    .login-title {
-      font-size: 1rem;
-      font-weight: 700;
-      color: var(--cream);
+      gap: 10px;
+      max-width: 480px;
+      width: 100%;
+      margin: 0 auto;
     }
 
-    .campo-label {
-      font-size: .72rem;
-      font-weight: 600;
-      letter-spacing: .08em;
+    .sel-label {
+      font-size: .7rem;
+      font-weight: 700;
+      letter-spacing: .12em;
       text-transform: uppercase;
       color: var(--mid);
-      margin-bottom: 6px;
+      padding: 4px 4px 8px;
     }
-    .campo-input {
-      width: 100%;
+
+    /* Card de funcionário */
+    .func-card {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 16px 18px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      cursor: pointer;
+      transition: border-color .18s, background .18s, transform .1s;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+    .func-card:active {
+      transform: scale(.97);
       background: var(--bg4);
-      border: 1px solid var(--border2);
-      border-radius: 12px;
-      color: var(--cream);
-      font-size: 1rem;
-      padding: 14px 16px;
-      outline: none;
-      transition: border-color .2s;
-      -webkit-appearance: none;
     }
-    .campo-input:focus { border-color: var(--gold); }
-    .campo-input::placeholder { color: var(--mid); }
+    .func-card:hover { border-color: var(--border2); }
 
-    .erro {
-      font-size: .82rem;
-      color: var(--red);
-      text-align: center;
-      min-height: 18px;
+    .func-avatar {
+      width: 48px; height: 48px;
+      border-radius: 50%;
+      background: var(--bg4);
+      border: 2px solid var(--border2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--gold);
+      flex-shrink: 0;
+      letter-spacing: -.02em;
     }
-
-    .btn-entrar {
-      width: 100%;
-      padding: 16px;
-      border-radius: 13px;
-      border: none;
-      background: var(--gold);
-      color: #09090b;
+    .func-info { flex: 1; min-width: 0; }
+    .func-nome {
       font-size: 1rem;
       font-weight: 700;
-      cursor: pointer;
-      transition: opacity .15s, transform .1s;
-      letter-spacing: .02em;
+      color: var(--cream);
     }
-    .btn-entrar:active { transform: scale(.97); }
-    .btn-entrar:hover { opacity: .9; }
-    .btn-entrar:disabled { opacity: .5; cursor: not-allowed; transform: none; }
-
-    .link-config {
-      font-size: .78rem;
+    .func-detalhe {
+      font-size: .75rem;
       color: var(--mid);
+      margin-top: 3px;
+    }
+    .func-seta {
+      color: var(--border2);
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+
+    /* saldo inline no card */
+    .func-saldo {
+      text-align: right;
+      flex-shrink: 0;
+    }
+    .func-saldo-val {
+      font-size: .95rem;
+      font-weight: 800;
+    }
+    .func-saldo-val.pos { color: var(--green2); }
+    .func-saldo-val.neg { color: var(--red); }
+    .func-saldo-val.zer { color: var(--mid); }
+    .func-saldo-sub {
+      font-size: .68rem;
+      color: var(--mid);
+      margin-top: 2px;
+    }
+
+    /* Sem dados ainda */
+    .sem-dados {
+      background: var(--bg3);
+      border: 1px dashed var(--border2);
+      border-radius: 18px;
+      padding: 36px 20px;
       text-align: center;
+    }
+    .sem-dados-icone { font-size: 2.2rem; margin-bottom: 10px; }
+    .sem-dados-titulo {
+      font-size: .95rem;
+      font-weight: 700;
+      color: var(--cream);
+      margin-bottom: 6px;
+    }
+    .sem-dados-sub {
+      font-size: .8rem;
+      color: var(--mid);
+      line-height: 1.5;
+    }
+
+    .rodape {
+      text-align: center;
+      padding: 8px 16px 4px;
+      font-size: .72rem;
+      color: var(--border2);
+    }
+    .link-cfg {
+      color: var(--mid);
       cursor: pointer;
       text-decoration: underline;
       text-underline-offset: 3px;
+      font-size: .75rem;
+      display: inline-block;
+      margin-top: 6px;
     }
 
-    /* ── TELA PRINCIPAL ── */
-    #tela-principal {
+    /* ══════════════════════════════════
+       TELA: DASHBOARD DO FUNCIONÁRIO
+    ══════════════════════════════════ */
+    #tela-dash {
       min-height: 100dvh;
       display: flex;
       flex-direction: column;
     }
-    #tela-principal.oculta { display: none; }
+    #tela-dash.oculta { display: none; }
 
-    .header {
+    .dash-header {
       padding: calc(18px + var(--safe-top)) 20px 16px;
       background: var(--bg2);
       border-bottom: 1px solid var(--border);
@@ -162,64 +217,58 @@
       align-items: center;
       gap: 14px;
     }
-    .header-avatar {
-      width: 42px; height: 42px;
+    .dash-back {
+      font-size: 1.5rem;
+      color: var(--gold);
+      cursor: pointer;
+      padding: 4px;
+      background: none;
+      border: none;
+      line-height: 1;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .dash-avatar {
+      width: 44px; height: 44px;
       border-radius: 50%;
       background: var(--gold);
       display: flex; align-items: center; justify-content: center;
-      font-size: 18px;
+      font-size: 19px;
       font-weight: 800;
       color: #09090b;
       flex-shrink: 0;
     }
-    .header-info { flex: 1; }
-    .header-nome {
-      font-size: 1rem;
+    .dash-info { flex: 1; }
+    .dash-nome {
+      font-size: 1.05rem;
       font-weight: 700;
-      color: var(--cream);
     }
-    .header-sub {
-      font-size: .75rem;
+    .dash-empresa {
+      font-size: .72rem;
       color: var(--mid);
       margin-top: 2px;
     }
-    .header-sair {
-      font-size: .75rem;
-      color: var(--mid);
-      cursor: pointer;
-      padding: 8px;
-      border-radius: 8px;
-      border: 1px solid var(--border2);
-      background: var(--bg4);
-      white-space: nowrap;
-    }
 
-    .conteudo {
+    .dash-corpo {
       flex: 1;
+      overflow-y: auto;
       padding: 20px 16px calc(32px + var(--safe-bot));
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 14px;
       max-width: 480px;
       width: 100%;
       margin: 0 auto;
     }
 
-    /* ── CARD PRINCIPAL ── */
-    .card-saldo {
-      background: var(--bg3);
-      border: 1px solid var(--border);
+    /* Card principal — valor a receber */
+    .card-principal {
+      background: linear-gradient(135deg, #1a2a1a 0%, var(--bg3) 100%);
+      border: 1px solid rgba(76,175,125,.25);
       border-radius: 20px;
       overflow: hidden;
     }
-    .card-barra {
-      height: 4px;
-      background: var(--gold);
-    }
-    .card-barra.verde { background: var(--green); }
-    .card-inner {
-      padding: 20px;
-    }
+    .card-principal .barra { height: 3px; background: var(--green); }
+    .card-inner { padding: 20px; }
     .card-titulo {
       font-size: .68rem;
       font-weight: 700;
@@ -229,29 +278,28 @@
       margin-bottom: 16px;
     }
 
-    /* bloco grande de valor */
-    .valor-principal {
+    .valor-bloco {
       text-align: center;
-      padding: 12px 0 8px;
+      padding: 8px 0 4px;
     }
     .valor-label {
       font-size: .72rem;
       color: var(--mid);
-      margin-bottom: 6px;
-      letter-spacing: .06em;
       text-transform: uppercase;
+      letter-spacing: .08em;
+      margin-bottom: 8px;
     }
     .valor-num {
-      font-size: 2.8rem;
-      font-weight: 800;
+      font-size: 3rem;
+      font-weight: 900;
       color: var(--green2);
-      letter-spacing: -.02em;
+      letter-spacing: -.03em;
       line-height: 1;
     }
     .valor-num.negativo { color: var(--red); }
-    .valor-num.neutro { color: var(--mid); }
+    .valor-num.neutro   { color: var(--mid); }
 
-    /* grade de métricas */
+    /* Grade de métricas 2x2 */
     .metricas {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -259,84 +307,91 @@
       margin-top: 16px;
     }
     .metrica {
-      background: var(--bg4);
+      background: rgba(0,0,0,.3);
       border: 1px solid var(--border);
       border-radius: 14px;
       padding: 14px 12px;
     }
     .metrica-label {
-      font-size: .65rem;
-      font-weight: 600;
+      font-size: .62rem;
+      font-weight: 700;
       letter-spacing: .1em;
       text-transform: uppercase;
       color: var(--mid);
       margin-bottom: 6px;
     }
     .metrica-val {
-      font-size: 1.25rem;
+      font-size: 1.2rem;
       font-weight: 800;
       color: var(--cream);
     }
-    .metrica-val.gold { color: var(--gold2); }
+    .metrica-val.gold  { color: var(--gold2); }
     .metrica-val.green { color: var(--green2); }
-    .metrica-val.red { color: var(--red); }
+    .metrica-val.red   { color: var(--red); }
+    .metrica-val.blue  { color: var(--blue); }
 
-    /* ── LINHA DE ATUALIZAÇÃO ── */
-    .atualizado {
-      font-size: .72rem;
-      color: var(--mid);
-      text-align: center;
-      padding: 4px 0;
+    /* Card secundário */
+    .card-sec {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      overflow: hidden;
     }
+    .card-sec .barra { height: 3px; background: var(--gold); }
 
-    /* ── CARD HISTÓRICO ── */
-    .registro-linha {
+    /* Lista de registros */
+    .reg-linha {
       display: flex;
       align-items: center;
-      gap: 10px;
-      padding: 10px 0;
+      gap: 12px;
+      padding: 11px 0;
       border-bottom: 1px solid var(--border);
     }
-    .registro-linha:last-child { border-bottom: none; }
+    .reg-linha:last-child { border-bottom: none; }
     .reg-dot {
       width: 8px; height: 8px;
       border-radius: 50%;
       flex-shrink: 0;
     }
-    .reg-dot.extra  { background: var(--green); }
-    .reg-dot.falta  { background: var(--red); }
-    .reg-dot.ok     { background: var(--mid); }
+    .reg-dot.extra { background: var(--green); }
+    .reg-dot.falta { background: var(--red); }
+    .reg-dot.ok    { background: var(--mid); }
     .reg-info { flex: 1; min-width: 0; }
     .reg-data {
-      font-size: .82rem;
+      font-size: .85rem;
       font-weight: 600;
-      color: var(--cream);
     }
-    .reg-horarios {
-      font-size: .7rem;
+    .reg-hora {
+      font-size: .72rem;
       color: var(--mid);
-      margin-top: 2px;
+      margin-top: 3px;
     }
     .reg-saldo {
-      font-size: .88rem;
-      font-weight: 700;
+      font-size: .9rem;
+      font-weight: 800;
       flex-shrink: 0;
     }
     .reg-saldo.pos { color: var(--green2); }
     .reg-saldo.neg { color: var(--red); }
     .reg-saldo.zer { color: var(--mid); }
 
-    /* ── SEM DADOS ── */
-    .vazio {
+    .atualizado {
       text-align: center;
-      padding: 40px 16px;
-      color: var(--mid);
+      font-size: .72rem;
+      color: var(--border2);
+      padding: 2px 0;
     }
-    .vazio-icone { font-size: 2.5rem; margin-bottom: 10px; }
-    .vazio-titulo { font-size: .95rem; font-weight: 700; color: var(--cream); margin-bottom: 6px; }
-    .vazio-sub { font-size: .82rem; line-height: 1.5; }
 
-    /* ── TELA DE CONFIG ── */
+    .vazio-bloco {
+      text-align: center;
+      padding: 32px 0;
+      color: var(--mid);
+      font-size: .85rem;
+    }
+
+    /* ══════════════════════════════════
+       TELA: CONFIGURAÇÃO
+    ══════════════════════════════════ */
     #tela-config {
       min-height: 100dvh;
       display: flex;
@@ -352,21 +407,23 @@
       align-items: center;
       gap: 12px;
     }
-    .btn-voltar {
-      font-size: 1.4rem;
+    .cfg-back {
+      font-size: 1.5rem;
       color: var(--gold);
       cursor: pointer;
-      padding: 4px 8px;
       background: none;
       border: none;
+      padding: 4px;
+      line-height: 1;
     }
     .cfg-titulo { font-size: 1rem; font-weight: 700; }
 
     .cfg-corpo {
+      flex: 1;
       padding: 20px 16px;
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 14px;
       max-width: 480px;
       width: 100%;
       margin: 0 auto;
@@ -385,10 +442,38 @@
       color: var(--mid);
       margin-bottom: 14px;
     }
-    .cfg-campo { margin-bottom: 14px; }
-    .cfg-campo:last-of-type { margin-bottom: 0; }
+    .campo { margin-bottom: 14px; }
+    .campo:last-of-type { margin-bottom: 4px; }
+    .campo-label {
+      font-size: .72rem;
+      font-weight: 600;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--mid);
+      margin-bottom: 6px;
+    }
+    .campo-input {
+      width: 100%;
+      background: var(--bg4);
+      border: 1px solid var(--border2);
+      border-radius: 12px;
+      color: var(--cream);
+      font-size: 1rem;
+      padding: 13px 15px;
+      outline: none;
+      transition: border-color .2s;
+      -webkit-appearance: none;
+    }
+    .campo-input:focus { border-color: var(--gold); }
+    .campo-input::placeholder { color: var(--mid); }
+    .campo-hint {
+      font-size: .7rem;
+      color: var(--mid);
+      margin-top: 5px;
+      line-height: 1.4;
+    }
 
-    .btn-salvar {
+    .btn-ouro {
       width: 100%;
       padding: 15px;
       border-radius: 13px;
@@ -398,43 +483,63 @@
       font-size: .95rem;
       font-weight: 700;
       cursor: pointer;
-      margin-top: 4px;
+      letter-spacing: .02em;
+      transition: opacity .15s;
     }
-    .btn-testar {
+    .btn-ouro:active { opacity: .8; }
+    .btn-outline {
       width: 100%;
       padding: 13px;
       border-radius: 13px;
       border: 1px solid var(--border2);
-      background: var(--bg4);
+      background: transparent;
       color: var(--cream);
       font-size: .9rem;
       font-weight: 600;
       cursor: pointer;
-      margin-top: 8px;
+      margin-top: 10px;
     }
 
-    /* ── SPINNER ── */
-    .spin {
-      display: inline-block;
-      width: 18px; height: 18px;
-      border: 2px solid rgba(9,9,11,.3);
-      border-top-color: #09090b;
+    /* ══════════════════════════════════
+       SPINNER / LOADING
+    ══════════════════════════════════ */
+    #overlay-loading {
+      position: fixed;
+      inset: 0;
+      background: rgba(9,9,11,.85);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      z-index: 500;
+    }
+    #overlay-loading.oculto { display: none; }
+    .spin-grande {
+      width: 48px; height: 48px;
+      border: 3px solid var(--border2);
+      border-top-color: var(--gold);
       border-radius: 50%;
-      animation: spin .7s linear infinite;
-      vertical-align: middle;
+      animation: spin .8s linear infinite;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-msg {
+      font-size: .88rem;
+      color: var(--mid);
+    }
 
-    /* ── TOAST ── */
+    /* ══════════════════════════════════
+       TOAST
+    ══════════════════════════════════ */
     #toast {
       position: fixed;
-      bottom: calc(24px + var(--safe-bot));
+      bottom: calc(20px + var(--safe-bot));
       left: 50%;
       transform: translateX(-50%) translateY(80px);
       background: var(--bg3);
       border: 1px solid var(--border2);
       border-radius: 12px;
-      padding: 12px 20px;
+      padding: 12px 22px;
       font-size: .85rem;
       font-weight: 600;
       color: var(--cream);
@@ -443,128 +548,130 @@
       transition: transform .3s cubic-bezier(.16,1,.3,1);
       pointer-events: none;
     }
-    #toast.show { transform: translateX(-50%) translateY(0); }
-    #toast.ok  { border-color: var(--green); color: var(--green2); }
-    #toast.err { border-color: var(--red);   color: var(--red); }
+    #toast.show  { transform: translateX(-50%) translateY(0); }
+    #toast.ok    { border-color: var(--green);  color: var(--green2); }
+    #toast.erro  { border-color: var(--red);    color: var(--red); }
+    #toast.aviso { border-color: var(--gold);   color: var(--gold2); }
   </style>
 </head>
 <body>
 
-<!-- ══════════════════════════════════════
-     TELA 1: LOGIN
-══════════════════════════════════════ -->
-<div id="tela-login">
-  <div class="logo-wrap">
-    <div class="logo-icone">⏱</div>
-    <div class="logo-nome">HR <span>Mármores</span></div>
-    <div class="logo-sub">Consulta de horas e saldo</div>
-  </div>
-
-  <div class="login-box">
-    <div class="login-title">Qual é o seu nome?</div>
-    <div>
-      <div class="campo-label">Nome</div>
-      <input id="inp-nome" class="campo-input" type="text"
-             placeholder="Ex: Hangel" autocomplete="name"
-             oninput="erroClear()" />
-    </div>
-    <div class="erro" id="msg-erro"></div>
-    <button class="btn-entrar" id="btn-entrar" onclick="entrar()">Consultar meu saldo</button>
-    <div class="link-config" onclick="irConfig()">⚙ Configurar conexão</div>
-  </div>
+<!-- ════════════════════════════════════════
+     OVERLAY LOADING
+════════════════════════════════════════ -->
+<div id="overlay-loading" class="oculto">
+  <div class="spin-grande"></div>
+  <div class="loading-msg" id="loading-msg">Carregando...</div>
 </div>
 
-<!-- ══════════════════════════════════════
-     TELA 2: DASHBOARD DO FUNCIONÁRIO
-══════════════════════════════════════ -->
-<div id="tela-principal" class="oculta">
+<!-- ════════════════════════════════════════
+     TELA 1 — SELECIONAR FUNCIONÁRIO
+════════════════════════════════════════ -->
+<div id="tela-selecao">
 
-  <div class="header">
-    <div class="header-avatar" id="hdr-avatar">H</div>
-    <div class="header-info">
-      <div class="header-nome" id="hdr-nome">—</div>
-      <div class="header-sub" id="hdr-sub">HR Mármores e Granitos</div>
-    </div>
-    <div class="header-sair" onclick="sair()">Sair</div>
+  <div class="sel-header">
+    <div class="sel-logo">⏱</div>
+    <div class="sel-titulo">HR <span>Mármores</span></div>
+    <div class="sel-sub">Selecione seu nome para consultar seu saldo</div>
   </div>
 
-  <div class="conteudo">
+  <div class="sel-corpo">
+    <div class="sel-label" id="sel-label-lista">Equipe</div>
+    <div id="lista-funcionarios">
+      <!-- preenchido pelo JS -->
+    </div>
+    <div style="text-align:center; margin-top:8px">
+      <span class="link-cfg" onclick="irConfig()">⚙ Configurar conexão</span>
+    </div>
+  </div>
 
-    <!-- Card: A Receber -->
-    <div class="card-saldo" id="card-principal">
-      <div class="card-barra verde"></div>
+  <div class="rodape">HR Mármores e Granitos · Pilão Arcado–BA</div>
+
+</div>
+
+<!-- ════════════════════════════════════════
+     TELA 2 — DASHBOARD DO FUNCIONÁRIO
+════════════════════════════════════════ -->
+<div id="tela-dash" class="oculta">
+
+  <div class="dash-header">
+    <button class="dash-back" onclick="voltarSelecao()">‹</button>
+    <div class="dash-avatar" id="dash-avatar">H</div>
+    <div class="dash-info">
+      <div class="dash-nome" id="dash-nome">—</div>
+      <div class="dash-empresa">HR Mármores e Granitos</div>
+    </div>
+  </div>
+
+  <div class="dash-corpo">
+
+    <!-- Valor a receber -->
+    <div class="card-principal">
+      <div class="barra"></div>
       <div class="card-inner">
-        <div class="card-titulo">💰 Meu Saldo Atual</div>
-        <div class="valor-principal">
+        <div class="card-titulo">💰 Meu Saldo</div>
+        <div class="valor-bloco">
           <div class="valor-label">A receber por horas extras</div>
-          <div class="valor-num" id="val-apagar">—</div>
+          <div class="valor-num" id="dash-apagar">—</div>
         </div>
         <div class="metricas">
           <div class="metrica">
             <div class="metrica-label">Saldo de horas</div>
-            <div class="metrica-val green" id="val-saldo">—</div>
+            <div class="metrica-val green" id="dash-saldo-fmt">—</div>
           </div>
           <div class="metrica">
-            <div class="metrica-label">Valor/hora extra</div>
-            <div class="metrica-val gold" id="val-hora-ext">—</div>
+            <div class="metrica-label">Valor hora extra</div>
+            <div class="metrica-val gold" id="dash-vhe">—</div>
           </div>
           <div class="metrica">
             <div class="metrica-label">Já recebido</div>
-            <div class="metrica-val" id="val-pago">—</div>
+            <div class="metrica-val blue" id="dash-pago">—</div>
           </div>
           <div class="metrica">
             <div class="metrica-label">Dias registrados</div>
-            <div class="metrica-val" id="val-dias">—</div>
+            <div class="metrica-val" id="dash-dias">—</div>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="atualizado" id="txt-atualizado"></div>
+    <div class="atualizado" id="dash-atualizado"></div>
 
-    <!-- Card: Registros diários -->
-    <div class="card-saldo" id="card-registros" style="display:none">
-      <div class="card-barra"></div>
+    <!-- Registros diários -->
+    <div class="card-sec" id="card-registros" style="display:none">
+      <div class="barra"></div>
       <div class="card-inner">
         <div class="card-titulo">📅 Registros Diários</div>
         <div id="lista-registros"></div>
       </div>
     </div>
 
-    <!-- Estado vazio -->
-    <div class="vazio" id="div-vazio" style="display:none">
-      <div class="vazio-icone">📋</div>
-      <div class="vazio-titulo">Sem dados ainda</div>
-      <div class="vazio-sub">O gerente ainda não publicou<br>seu saldo. Aguarde a atualização.</div>
-    </div>
-
   </div>
 </div>
 
-<!-- ══════════════════════════════════════
-     TELA 3: CONFIGURAÇÕES
-══════════════════════════════════════ -->
+<!-- ════════════════════════════════════════
+     TELA 3 — CONFIGURAÇÃO
+════════════════════════════════════════ -->
 <div id="tela-config" class="oculta">
   <div class="cfg-header">
-    <button class="btn-voltar" onclick="voltarLogin()">‹</button>
+    <button class="cfg-back" onclick="voltarSelecao()">‹</button>
     <div class="cfg-titulo">Configurar Conexão</div>
   </div>
   <div class="cfg-corpo">
     <div class="cfg-card">
       <div class="cfg-card-titulo">☁ GitHub Gist</div>
-      <div class="cfg-campo">
+      <div class="campo">
         <div class="campo-label">GitHub Token (PAT)</div>
         <input id="cfg-token" class="campo-input" type="password" placeholder="ghp_..." />
+        <div class="campo-hint">Token com permissão de leitura em Gists.</div>
       </div>
-      <div class="cfg-campo">
+      <div class="campo">
         <div class="campo-label">ID do Gist</div>
         <input id="cfg-gist" class="campo-input" type="text" placeholder="abc123def456..." />
-        <div style="font-size:.72rem;color:var(--mid);margin-top:6px">
-          O ID é fornecido pelo gerente após a primeira publicação.
-        </div>
+        <div class="campo-hint">Fornecido pelo gerente após a primeira publicação.</div>
       </div>
-      <button class="btn-salvar" onclick="salvarConfig()">💾 Salvar</button>
-      <button class="btn-testar" onclick="testarConfig()">Testar conexão</button>
+      <button class="btn-ouro" onclick="salvarConfig()">💾 Salvar e carregar</button>
+      <button class="btn-outline" onclick="testarConexao()">Testar conexão</button>
     </div>
   </div>
 </div>
@@ -580,103 +687,94 @@ if ('serviceWorker' in navigator) {
 <script>
 'use strict';
 
-/* ══════════════════════════════════════════
+/* ═══════════════════════════════════
    STORAGE
-══════════════════════════════════════════ */
-function lsGet(k) { try { return JSON.parse(localStorage.getItem(k)); } catch { return null; } }
-function lsSet(k, v) { localStorage.setItem(k, JSON.stringify(v)); }
+═══════════════════════════════════ */
+const ls = {
+  get: k  => { try { return JSON.parse(localStorage.getItem(k)); } catch { return null; } },
+  set: (k,v) => localStorage.setItem(k, JSON.stringify(v)),
+};
 
-function getConfig() { return lsGet('hr_cfg_func') || { token: '', gistId: '' }; }
-function setConfig(c) { lsSet('hr_cfg_func', c); }
+function getConfig() {
+  return ls.get('hr_func_cfg') || { token: '', gistId: '' };
+}
+function setConfig(c) { ls.set('hr_func_cfg', c); }
 
-/* ══════════════════════════════════════════
+/* ═══════════════════════════════════
+   ESTADO
+═══════════════════════════════════ */
+let PAYLOAD = null; // dados do data.json
+
+/* ═══════════════════════════════════
    NAVEGAÇÃO
-══════════════════════════════════════════ */
+═══════════════════════════════════ */
 function mostrar(id) {
-  ['tela-login', 'tela-principal', 'tela-config'].forEach(t => {
-    const el = document.getElementById(t);
-    el.classList.toggle('oculta', t !== id);
+  ['tela-selecao', 'tela-dash', 'tela-config'].forEach(t => {
+    document.getElementById(t).classList.toggle('oculta', t !== id);
   });
 }
+function voltarSelecao() { mostrar('tela-selecao'); }
+function irConfig() {
+  const c = getConfig();
+  document.getElementById('cfg-token').value = c.token || '';
+  document.getElementById('cfg-gist').value  = c.gistId || '';
+  mostrar('tela-config');
+}
 
-function irConfig() { mostrar('tela-config'); carregarCamposConfig(); }
-function voltarLogin() { mostrar('tela-login'); }
-
-/* ══════════════════════════════════════════
+/* ═══════════════════════════════════
    TOAST
-══════════════════════════════════════════ */
-let _tt = null;
+═══════════════════════════════════ */
+let _tt;
 function toast(msg, tipo = '') {
   const el = document.getElementById('toast');
   el.textContent = msg;
   el.className = 'show ' + tipo;
-  if (_tt) clearTimeout(_tt);
-  _tt = setTimeout(() => el.className = '', 3000);
+  clearTimeout(_tt);
+  _tt = setTimeout(() => el.className = '', 3200);
 }
 
-/* ══════════════════════════════════════════
-   CONFIG
-══════════════════════════════════════════ */
-function carregarCamposConfig() {
-  const c = getConfig();
-  document.getElementById('cfg-token').value = c.token || '';
-  document.getElementById('cfg-gist').value  = c.gistId || '';
+/* ═══════════════════════════════════
+   LOADING
+═══════════════════════════════════ */
+function loading(sim, msg = 'Carregando...') {
+  document.getElementById('loading-msg').textContent = msg;
+  document.getElementById('overlay-loading').classList.toggle('oculto', !sim);
 }
 
-function salvarConfig() {
-  const token  = document.getElementById('cfg-token').value.trim();
-  const gistId = document.getElementById('cfg-gist').value.trim();
-  setConfig({ token, gistId });
-  toast('Configuração salva!', 'ok');
-  setTimeout(voltarLogin, 800);
-}
-
-async function testarConfig() {
-  const token  = document.getElementById('cfg-token').value.trim();
-  const gistId = document.getElementById('cfg-gist').value.trim();
-  if (!token || !gistId) { toast('Preencha token e ID primeiro', 'err'); return; }
-  try {
-    const r = await fetch(`https://api.github.com/gists/${gistId}`, {
-      headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github+json' }
-    });
-    if (!r.ok) throw new Error(`HTTP ${r.status}`);
-    const g = await r.json();
-    const temData = !!g.files['data.json'];
-    toast(temData ? '✓ Conectado! data.json encontrado.' : '⚠ Gist OK mas sem data.json ainda.', 'ok');
-  } catch(e) {
-    toast('Erro: ' + e.message.slice(0, 60), 'err');
-  }
-}
-
-/* ══════════════════════════════════════════
+/* ═══════════════════════════════════
    FORMATOS
-══════════════════════════════════════════ */
+═══════════════════════════════════ */
 function fmtBRL(v) {
-  return 'R$ ' + Math.abs(v).toFixed(2)
-    .replace('.', ',')
-    .replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  return 'R$\u00a0' + Math.abs(Number(v) || 0).toFixed(2)
+    .replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 }
 function fmtHM(mins) {
   const a = Math.abs(mins);
-  const h = Math.floor(a / 60);
-  const m = a % 60;
-  return (mins < 0 ? '-' : '+') + String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0');
+  return (mins < 0 ? '−' : '+') +
+    String(Math.floor(a / 60)).padStart(2,'0') + ':' +
+    String(Math.floor(a % 60)).padStart(2,'0');
 }
 const DIAS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 function fmtData(s) {
-  const [y,m,d] = s.split('-');
-  const dt = new Date(y, parseInt(m)-1, d);
-  return `${d}/${m} · ${DIAS[dt.getDay()]}`;
+  try {
+    const [y, m, d] = s.split('-');
+    const dt = new Date(Number(y), Number(m)-1, Number(d));
+    return `${d}/${m} · ${DIAS[dt.getDay()]}`;
+  } catch { return s; }
+}
+function iniciais(nome) {
+  return nome.split(' ').slice(0,2).map(p => p[0]).join('').toUpperCase();
+}
+function capitalizar(s) {
+  return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
 }
 
-/* ══════════════════════════════════════════
-   BUSCAR DADOS DO GIST
-══════════════════════════════════════════ */
-async function buscarDados(nome) {
+/* ═══════════════════════════════════
+   BUSCAR DATA.JSON DO GIST
+═══════════════════════════════════ */
+async function buscarGist() {
   const cfg = getConfig();
-  if (!cfg.token || !cfg.gistId) {
-    return { erro: 'sem_config' };
-  }
+  if (!cfg.token || !cfg.gistId) return { erro: 'sem_config' };
   try {
     const r = await fetch(`https://api.github.com/gists/${cfg.gistId}`, {
       headers: {
@@ -687,159 +785,221 @@ async function buscarDados(nome) {
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
     const gist = await r.json();
     const arq = gist.files['data.json'];
-    if (!arq || !arq.content) return { erro: 'sem_dados' };
+    if (!arq || !arq.content) return { erro: 'sem_arquivo' };
     const payload = JSON.parse(arq.content);
-    const funcs = payload.funcionarios || [];
-    const eu = funcs.find(f =>
-      f.nome && f.nome.toLowerCase() === nome.toLowerCase()
-    );
-    if (!eu) return { erro: 'nao_encontrado', payload };
-    return { ok: true, dados: eu, atualizado_em: payload.atualizado_em };
-  } catch(e) {
+    return { ok: true, payload };
+  } catch (e) {
     return { erro: 'conexao', msg: e.message };
   }
 }
 
-/* ══════════════════════════════════════════
-   RENDERIZAR DASHBOARD
-══════════════════════════════════════════ */
-function renderDashboard(nome, dados, atualizadoEm) {
-  // Header
-  document.getElementById('hdr-avatar').textContent = nome[0].toUpperCase();
-  document.getElementById('hdr-nome').textContent =
-    nome.charAt(0).toUpperCase() + nome.slice(1);
-  document.getElementById('hdr-sub').textContent = 'HR Mármores e Granitos';
+/* ═══════════════════════════════════
+   RENDERIZAR LISTA DE FUNCIONÁRIOS
+═══════════════════════════════════ */
+function renderLista(payload) {
+  PAYLOAD = payload;
+  const lista = document.getElementById('lista-funcionarios');
+  const funcs = (payload.funcionarios || []);
 
-  // Valores principais
-  const aPagar = dados.a_pagar ?? 0;
+  if (!funcs.length) {
+    lista.innerHTML = `
+      <div class="sem-dados">
+        <div class="sem-dados-icone">👥</div>
+        <div class="sem-dados-titulo">Nenhum dado publicado</div>
+        <div class="sem-dados-sub">O gerente ainda não sincronizou os dados.<br>Aguarde a próxima atualização.</div>
+      </div>`;
+    return;
+  }
+
+  lista.innerHTML = funcs.map(f => {
+    const saldo   = f.saldo_min ?? 0;
+    const aPagar  = f.a_pagar ?? 0;
+    const saldoFmt = f.saldo_fmt || fmtHM(saldo);
+    const aPagarFmt = f.a_pagar_fmt || fmtBRL(aPagar);
+    const cls = saldo > 0 ? 'pos' : saldo < 0 ? 'neg' : 'zer';
+    const nome = capitalizar(f.nome || '');
+
+    return `
+      <div class="func-card" onclick="abrirFuncionario('${f.nome}')">
+        <div class="func-avatar">${iniciais(nome)}</div>
+        <div class="func-info">
+          <div class="func-nome">${nome}</div>
+          <div class="func-detalhe">${(f.registros || []).length} dias registrados</div>
+        </div>
+        <div class="func-saldo">
+          <div class="func-saldo-val ${cls}">${saldoFmt}</div>
+          <div class="func-saldo-sub">${aPagarFmt}</div>
+        </div>
+        <div class="func-seta">›</div>
+      </div>`;
+  }).join('');
+
+  // Label com data de atualização
+  const lbl = document.getElementById('sel-label-lista');
+  if (payload.atualizado_em) {
+    lbl.textContent = `Equipe · atualizado ${payload.atualizado_em}`;
+  }
+}
+
+/* ═══════════════════════════════════
+   ABRIR DASHBOARD DO FUNCIONÁRIO
+═══════════════════════════════════ */
+function abrirFuncionario(nome) {
+  if (!PAYLOAD) return;
+  const dados = (PAYLOAD.funcionarios || []).find(f =>
+    f.nome && f.nome.toLowerCase() === nome.toLowerCase()
+  );
+  if (!dados) return;
+
+  const nomeFormatado = capitalizar(dados.nome || nome);
+
+  // Header
+  document.getElementById('dash-avatar').textContent = iniciais(nomeFormatado);
+  document.getElementById('dash-nome').textContent = nomeFormatado;
+
+  // Valores
+  const aPagar   = dados.a_pagar ?? 0;
   const saldoMin = dados.saldo_min ?? 0;
 
-  const valEl = document.getElementById('val-apagar');
-  valEl.textContent = fmtBRL(aPagar);
-  valEl.className = 'valor-num' + (aPagar <= 0 ? ' neutro' : '');
+  const apEl = document.getElementById('dash-apagar');
+  apEl.textContent = dados.a_pagar_fmt || fmtBRL(aPagar);
+  apEl.className = 'valor-num' + (aPagar <= 0 ? ' neutro' : '');
 
-  const saldoEl = document.getElementById('val-saldo');
+  const saldoEl = document.getElementById('dash-saldo-fmt');
   saldoEl.textContent = dados.saldo_fmt || fmtHM(saldoMin);
   saldoEl.className = 'metrica-val ' + (saldoMin >= 0 ? 'green' : 'red');
 
-  document.getElementById('val-hora-ext').textContent =
-    dados.valor_hora_ext_fmt || (dados.valor_hora_ext ? fmtBRL(dados.valor_hora_ext) : '—');
-  document.getElementById('val-pago').textContent =
-    dados.total_pago_fmt || (dados.total_pago != null ? fmtBRL(dados.total_pago) : '—');
+  document.getElementById('dash-vhe').textContent =
+    dados.valor_hora_ext_fmt || fmtBRL(dados.valor_hora_ext ?? 0);
+  document.getElementById('dash-pago').textContent =
+    dados.total_pago_fmt || fmtBRL(dados.total_pago ?? 0);
 
   const regs = dados.registros || [];
-  document.getElementById('val-dias').textContent = regs.length || '—';
+  document.getElementById('dash-dias').textContent = regs.length || '—';
 
-  // Atualização
-  if (atualizadoEm || dados.atualizado_em) {
-    document.getElementById('txt-atualizado').textContent =
-      'Atualizado pelo gerente: ' + (atualizadoEm || dados.atualizado_em);
-  }
+  // Atualizado
+  const atu = dados.atualizado_em || PAYLOAD.atualizado_em || '';
+  document.getElementById('dash-atualizado').textContent =
+    atu ? 'Atualizado pelo gerente: ' + atu : '';
 
   // Registros diários
+  const cardRegs = document.getElementById('card-registros');
   if (regs.length) {
-    const cardRegs = document.getElementById('card-registros');
     cardRegs.style.display = 'block';
-    const lista = document.getElementById('lista-registros');
     const ordenados = [...regs].sort((a, b) => b.data.localeCompare(a.data));
-    lista.innerHTML = ordenados.map(r => {
-      const cls = r.saldo_min > 0 ? 'pos' : r.saldo_min < 0 ? 'neg' : 'zer';
-      const dotCls = r.status || (r.saldo_min > 0 ? 'extra' : r.saldo_min < 0 ? 'falta' : 'ok');
-      const horarios = (r.horarios || []).join(' → ');
-      const saldoFmt = r.saldo_fmt || fmtHM(r.saldo_min || 0);
+    document.getElementById('lista-registros').innerHTML = ordenados.map(r => {
+      const sm = r.saldo_min ?? 0;
+      const cls = sm > 0 ? 'pos' : sm < 0 ? 'neg' : 'zer';
+      const dot = r.status === 'extra' || sm > 0 ? 'extra' :
+                  r.status === 'falta' || sm < 0 ? 'falta' : 'ok';
+      const sf  = r.saldo_fmt || fmtHM(sm);
+      const hrs = (r.horarios || []).join(' → ');
       return `
-        <div class="registro-linha">
-          <div class="reg-dot ${dotCls}"></div>
+        <div class="reg-linha">
+          <div class="reg-dot ${dot}"></div>
           <div class="reg-info">
             <div class="reg-data">${fmtData(r.data)}</div>
-            ${horarios ? `<div class="reg-horarios">${horarios} · ${r.trabalhados_fmt || ''}h</div>` : ''}
+            ${hrs ? `<div class="reg-hora">${hrs}${r.trabalhados_fmt ? ' · ' + r.trabalhados_fmt + 'h' : ''}</div>` : ''}
           </div>
-          <div class="reg-saldo ${cls}">${saldoFmt}</div>
+          <div class="reg-saldo ${cls}">${sf}</div>
         </div>`;
     }).join('');
-    document.getElementById('div-vazio').style.display = 'none';
   } else {
-    document.getElementById('card-registros').style.display = 'none';
-    document.getElementById('div-vazio').style.display = 'block';
+    cardRegs.style.display = 'none';
   }
 
-  mostrar('tela-principal');
+  mostrar('tela-dash');
 }
 
-/* ══════════════════════════════════════════
-   ENTRAR
-══════════════════════════════════════════ */
-function erroClear() {
-  document.getElementById('msg-erro').textContent = '';
+/* ═══════════════════════════════════
+   CONFIGURAÇÃO
+═══════════════════════════════════ */
+function salvarConfig() {
+  const token  = document.getElementById('cfg-token').value.trim();
+  const gistId = document.getElementById('cfg-gist').value.trim();
+  setConfig({ token, gistId });
+  toast('Configuração salva! Recarregando lista...', 'ok');
+  setTimeout(() => { voltarSelecao(); init(); }, 900);
 }
 
-async function entrar() {
-  const nome = document.getElementById('inp-nome').value.trim();
-  if (!nome) {
-    document.getElementById('msg-erro').textContent = 'Digite seu nome.';
-    return;
+async function testarConexao() {
+  const token  = document.getElementById('cfg-token').value.trim();
+  const gistId = document.getElementById('cfg-gist').value.trim();
+  if (!token || !gistId) { toast('Preencha token e ID primeiro.', 'erro'); return; }
+  try {
+    const r = await fetch(`https://api.github.com/gists/${gistId}`, {
+      headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github+json' }
+    });
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    const g = await r.json();
+    const temData = !!g.files['data.json'];
+    toast(
+      temData ? '✓ Conectado! data.json encontrado.' : '⚠ Gist acessível mas sem data.json ainda.',
+      temData ? 'ok' : 'aviso'
+    );
+  } catch(e) {
+    toast('Erro: ' + e.message.slice(0,60), 'erro');
   }
-
-  const btn = document.getElementById('btn-entrar');
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spin"></span>';
-
-  const res = await buscarDados(nome);
-
-  btn.disabled = false;
-  btn.textContent = 'Consultar meu saldo';
-
-  if (res.erro === 'sem_config') {
-    document.getElementById('msg-erro').textContent = '';
-    toast('Configure o token e Gist ID primeiro.', 'err');
-    irConfig();
-    return;
-  }
-  if (res.erro === 'conexao') {
-    document.getElementById('msg-erro').textContent = 'Erro de conexão. Verifique sua internet.';
-    return;
-  }
-  if (res.erro === 'sem_dados') {
-    document.getElementById('msg-erro').textContent = 'Dados ainda não publicados pelo gerente.';
-    return;
-  }
-  if (res.erro === 'nao_encontrado') {
-    document.getElementById('msg-erro').textContent = `"${nome}" não encontrado. Verifique o nome.`;
-    return;
-  }
-
-  lsSet('hr_ultimo_nome', nome);
-  renderDashboard(nome, res.dados, res.atualizado_em);
 }
 
-function sair() {
-  document.getElementById('inp-nome').value = '';
-  erroClear();
-  document.getElementById('card-registros').style.display = 'none';
-  document.getElementById('div-vazio').style.display = 'none';
-  document.getElementById('txt-atualizado').textContent = '';
-  mostrar('tela-login');
-}
-
-/* ══════════════════════════════════════════
+/* ═══════════════════════════════════
    INIT
-══════════════════════════════════════════ */
-(function init() {
-  // Preenche nome do último uso
-  const ultimo = lsGet('hr_ultimo_nome');
-  if (ultimo) document.getElementById('inp-nome').value = ultimo;
-
-  // Enter no campo nome
-  document.getElementById('inp-nome').addEventListener('keydown', e => {
-    if (e.key === 'Enter') entrar();
-  });
-
-  // Verifica config na inicialização
+═══════════════════════════════════ */
+async function init() {
   const cfg = getConfig();
+
   if (!cfg.token || !cfg.gistId) {
-    // Mostra aviso discreto mas não força ir para config
+    // Mostra tela sem dados
+    const lista = document.getElementById('lista-funcionarios');
+    lista.innerHTML = `
+      <div class="sem-dados">
+        <div class="sem-dados-icone">⚙️</div>
+        <div class="sem-dados-titulo">Conexão não configurada</div>
+        <div class="sem-dados-sub">Toque em "Configurar conexão" abaixo<br>e insira o Token e o ID do Gist.</div>
+      </div>`;
+    return;
   }
-})();
+
+  loading(true, 'Buscando dados...');
+  const res = await buscarGist();
+  loading(false);
+
+  if (res.erro === 'conexao') {
+    // Tenta cache local
+    const cache = ls.get('hr_func_cache');
+    if (cache) {
+      renderLista(cache);
+      toast('Offline — exibindo dados do cache.', 'aviso');
+    } else {
+      const lista = document.getElementById('lista-funcionarios');
+      lista.innerHTML = `
+        <div class="sem-dados">
+          <div class="sem-dados-icone">📡</div>
+          <div class="sem-dados-titulo">Sem conexão</div>
+          <div class="sem-dados-sub">Verifique sua internet e tente novamente.</div>
+        </div>`;
+    }
+    return;
+  }
+
+  if (res.erro === 'sem_arquivo') {
+    const lista = document.getElementById('lista-funcionarios');
+    lista.innerHTML = `
+      <div class="sem-dados">
+        <div class="sem-dados-icone">📋</div>
+        <div class="sem-dados-titulo">Dados ainda não publicados</div>
+        <div class="sem-dados-sub">O gerente ainda não sincronizou. Aguarde.</div>
+      </div>`;
+    return;
+  }
+
+  if (res.ok) {
+    ls.set('hr_func_cache', res.payload); // salva cache offline
+    renderLista(res.payload);
+  }
+}
+
+init();
 </script>
 
 </body>
