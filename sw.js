@@ -1,70 +1,49 @@
-/* ══════════════════════════════════════════════════════════
-   SERVICE WORKER — Sistema de Ponto
-   Estratégia: Cache First para assets, Network First para dados
-══════════════════════════════════════════════════════════ */
+// Service Worker — Banco de Horas PWA
+const CACHE = "bh-v2";
+const ASSETS = ["/", "/manifest.json"];
 
-const CACHE_NAME = 'ponto-v4';
-const ASSETS = [
-  './',
-  './index.html',
-  './gerente.html',
-  './manifest.json',
-];
-
-/* ── INSTALL ──────────────────────────────────────────── */
-self.addEventListener('install', event => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS))
+self.addEventListener("install", e => {
+  e.waitUntil(
+    caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting())
   );
-  self.skipWaiting();
 });
 
-/* ── ACTIVATE ─────────────────────────────────────────── */
-self.addEventListener('activate', event => {
-  event.waitUntil(
+self.addEventListener("activate", e => {
+  e.waitUntil(
     caches.keys().then(keys =>
-      Promise.all(
-        keys
-          .filter(k => k !== CACHE_NAME)
-          .map(k => caches.delete(k))
-      )
-    )
+      Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
+    ).then(() => self.clients.claim())
   );
-  self.clients.claim();
 });
 
-/* ── FETCH ────────────────────────────────────────────── */
-self.addEventListener('fetch', event => {
-  const url = new URL(event.request.url);
+self.addEventListener("fetch", e => {
+  const url = new URL(e.request.url);
 
-  // GitHub API e outros externos: Network only (sem cache)
-  if (url.hostname === 'api.github.com' || url.origin !== self.location.origin) {
-    event.respondWith(fetch(event.request).catch(() => new Response('', { status: 503 })));
+  // Rotas de API: sempre vai para a rede, sem cache
+  if (url.pathname.startsWith("/api/")) {
+    e.respondWith(fetch(e.request));
     return;
   }
 
-  // Assets locais: Cache First, fallback para network
-  event.respondWith(
-    caches.match(event.request).then(cached => {
+  // index.html: sempre rede primeiro (garante atualização)
+  if (url.pathname === "/" || url.pathname.endsWith("index.html")) {
+    e.respondWith(
+      fetch(e.request).catch(() => caches.match(e.request))
+    );
+    return;
+  }
+
+  // Demais recursos: cache-first, fallback rede
+  e.respondWith(
+    caches.match(e.request).then(cached => {
       if (cached) return cached;
-      return fetch(event.request).then(response => {
-        const toCache = response.clone();
-        caches.open(CACHE_NAME).then(cache => cache.put(event.request, toCache));
-        return response;
-      }).catch(() => {
-        // Fallback para index.html (SPA)
-        if (event.request.destination === 'document') {
-          return caches.match('./index.html');
+      return fetch(e.request).then(res => {
+        if (res && res.status === 200) {
+          const clone = res.clone();
+          caches.open(CACHE).then(c => c.put(e.request, clone));
         }
+        return res;
       });
     })
   );
-});
-
-/* ── SYNC em background (quando volta online) ─────────── */
-self.addEventListener('sync', event => {
-  if (event.tag === 'sync-ponto') {
-    // O app lida com o sync ao voltar online
-    console.log('[SW] Background sync: sync-ponto');
-  }
 });
